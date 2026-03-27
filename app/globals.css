@@ -1,0 +1,79 @@
+@import "../styles/premium-theme.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at top, #ffffff 0%, var(--background) 60%);
+  color: var(--foreground);
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.hero-card {
+  width: min(860px, 100%);
+  background: color-mix(in oklab, var(--card) 88%, white);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 0.6rem);
+  padding: clamp(1.5rem, 3vw, 3rem);
+  box-shadow:
+    var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur)
+    var(--shadow-spread) var(--shadow-color);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.subtitle {
+  color: var(--muted-foreground);
+  max-width: 62ch;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 1rem;
+}
+
+.chips span {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent-foreground) 20%, transparent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: radial-gradient(circle at top, #111827 0%, var(--background) 60%);
+  }
+
+  .hero-card {
+    background: color-mix(in oklab, var(--card) 94%, #000000);
+  }
+}
