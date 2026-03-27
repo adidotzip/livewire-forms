@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle, Trash2, Send, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT_LIST } from "@/lib/events";
@@ -21,6 +21,32 @@ export default function Home() {
     { id: crypto.randomUUID(), name: "", email: "", event: "" },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedSchoolName = localStorage.getItem("schoolName");
+    const savedSchoolEmail = localStorage.getItem("schoolEmail");
+    const savedStudents = localStorage.getItem("students");
+
+    if (savedSchoolName) setSchoolName(savedSchoolName);
+    if (savedSchoolEmail) setSchoolEmail(savedSchoolEmail);
+    if (savedStudents) {
+      try {
+        setStudents(JSON.parse(savedStudents));
+      } catch (e) {
+        console.error("Failed to parse students from local storage", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("schoolName", schoolName);
+      localStorage.setItem("schoolEmail", schoolEmail);
+      localStorage.setItem("students", JSON.stringify(students));
+    }
+  }, [schoolName, schoolEmail, students, mounted]);
 
   const isEmailValid = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -81,11 +107,18 @@ export default function Home() {
 
       toast.success("Registration successful!", { id: toastId });
 
+      // Clear local storage
+      localStorage.removeItem("schoolName");
+      localStorage.removeItem("schoolEmail");
+      localStorage.removeItem("students");
+
       // Reset form
       setSchoolName("");
       setSchoolEmail("");
       setStudents([{ id: crypto.randomUUID(), name: "", email: "", event: "" }]);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Redirect to external URL
+      window.location.href = "https://livewire.imreallyadi.space/";
 
     } catch (error) {
       console.error(error);
@@ -96,28 +129,28 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen pb-24 px-4 sm:px-6 lg:px-8 py-12">
+    <main className="min-h-screen pb-24 px-4 sm:px-6 lg:px-8 py-12 bg-background text-foreground">
       <div className="max-w-3xl mx-auto space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center p-3 bg-neutral-900 rounded-2xl mb-4">
-            <GraduationCap className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center p-3 bg-primary rounded-2xl mb-4 shadow-custom">
+            <GraduationCap className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
             Event Registration
           </h1>
-          <p className="text-neutral-500 text-lg max-w-xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Register your school and students for upcoming events. Fill out the details below to get started.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* School Information Section */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-neutral-200">
+          <div className="bg-card text-card-foreground p-6 sm:p-8 rounded-3xl shadow-custom border border-border">
             <h2 className="text-xl font-medium mb-6">School Information</h2>
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-700">
+                <label className="text-sm font-medium text-foreground">
                   School Name
                 </label>
                 <input
@@ -125,12 +158,12 @@ export default function Home() {
                   required
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all placeholder:text-muted-foreground text-foreground"
                   placeholder="e.g. Springfield High"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-700">
+                <label className="text-sm font-medium text-foreground">
                   School Email
                 </label>
                 <input
@@ -138,7 +171,7 @@ export default function Home() {
                   required
                   value={schoolEmail}
                   onChange={(e) => setSchoolEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all placeholder:text-muted-foreground text-foreground"
                   placeholder="school@example.com"
                 />
               </div>
@@ -148,7 +181,7 @@ export default function Home() {
           {/* Students Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-medium">
+              <h2 className="text-xl font-medium text-foreground">
                 Students ({students.length})
               </h2>
             </div>
@@ -162,13 +195,13 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-white p-6 rounded-3xl shadow-sm border border-neutral-200 relative group"
+                    className="bg-card text-card-foreground p-6 rounded-3xl shadow-custom border border-border relative group"
                   >
                     {students.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeStudent(student.id)}
-                        className="absolute -right-3 -top-3 p-2 bg-white text-neutral-400 hover:text-red-500 rounded-full shadow-sm border border-neutral-200 opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                        className="absolute -right-3 -top-3 p-2 bg-background text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full shadow-custom border border-border opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -176,7 +209,7 @@ export default function Home() {
 
                     <div className="grid gap-6 sm:grid-cols-3">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-foreground">
                           Student Name
                         </label>
                         <input
@@ -186,12 +219,12 @@ export default function Home() {
                           onChange={(e) =>
                             updateStudent(student.id, "name", e.target.value)
                           }
-                          className="w-full px-4 py-3 rounded-2xl bg-neutral-50/50 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:bg-white transition-all"
+                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
                           placeholder="John Doe"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-foreground">
                           Student Email
                         </label>
                         <input
@@ -201,12 +234,12 @@ export default function Home() {
                           onChange={(e) =>
                             updateStudent(student.id, "email", e.target.value)
                           }
-                          className="w-full px-4 py-3 rounded-2xl bg-neutral-50/50 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:bg-white transition-all"
+                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
                           placeholder="john@example.com"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-foreground">
                           Event
                         </label>
                         <select
@@ -215,7 +248,7 @@ export default function Home() {
                           onChange={(e) =>
                             updateStudent(student.id, "event", e.target.value)
                           }
-                          className="w-full px-4 py-3 rounded-2xl bg-neutral-50/50 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:bg-white transition-all appearance-none cursor-pointer"
+                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all appearance-none cursor-pointer text-foreground"
                         >
                           <option value="" disabled>Select an event...</option>
                           {EVENT_LIST.map((event) => (
@@ -235,28 +268,28 @@ export default function Home() {
               <button
                 type="button"
                 onClick={addStudent}
-                className="py-4 px-8 bg-white/90 backdrop-blur-md border border-neutral-200 shadow-lg rounded-full text-neutral-700 font-medium hover:bg-neutral-50 hover:scale-105 hover:shadow-xl transition-all flex items-center justify-center gap-2 pointer-events-auto"
+                className="py-4 px-8 bg-card/90 backdrop-blur-md border border-border shadow-custom rounded-full text-foreground font-medium hover:bg-accent hover:scale-105 transition-all flex items-center justify-center gap-2 pointer-events-auto"
               >
-                <PlusCircle className="w-5 h-5" />
+                <PlusCircle className="w-5 h-5 text-primary" />
                 Add Another Student
               </button>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-neutral-200 flex justify-center z-50">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border flex justify-center z-50">
             <button
               type="submit"
               disabled={!isFormValid || isSubmitting}
               className={cn(
-                "w-full max-w-3xl py-4 rounded-2xl font-medium flex items-center justify-center gap-2 transition-all shadow-sm",
+                "w-full max-w-3xl py-4 rounded-2xl font-medium flex items-center justify-center gap-2 transition-all shadow-custom",
                 isFormValid && !isSubmitting
-                  ? "bg-neutral-900 text-white hover:bg-neutral-800 hover:scale-[1.01]"
-                  : "bg-neutral-100 text-neutral-400 cursor-not-allowed"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.01]"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
               )}
             >
               {isSubmitting ? (
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
               ) : (
                 <Send className="w-5 h-5" />
               )}
