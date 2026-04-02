@@ -17,7 +17,7 @@ function getSheet() {
       "School Name",
       "School Email",
       "Student Name",
-      "Student Email",
+      "Student Phone No.",
       "Event"
     ]);
     // Make headers bold
@@ -44,7 +44,7 @@ function doPost(e) {
       schoolName,
       schoolEmail,
       student.name,
-      student.email,
+      student.phone,
       student.event
     ]);
 
@@ -86,7 +86,7 @@ function doGet(e) {
         schoolName: row[1],
         schoolEmail: row[2],
         studentName: row[3],
-        studentEmail: row[4],
+        studentPhone: row[4],
         event: row[5]
       };
       jsonData.push(obj);
