@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 type Student = {
   id: string;
   name: string;
-  email: string;
+  phone: string;
   event: string;
 };
 
@@ -18,7 +18,7 @@ export default function Home() {
   const [schoolName, setSchoolName] = useState("");
   const [schoolEmail, setSchoolEmail] = useState("");
   const [students, setStudents] = useState<Student[]>([
-    { id: crypto.randomUUID(), name: "", email: "", event: "" },
+    { id: crypto.randomUUID(), name: "", phone: "", event: "" },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -58,13 +58,13 @@ export default function Home() {
     students.length > 0 &&
     students.every(
       (s) =>
-        s.name.trim() !== "" && isEmailValid(s.email) && s.event.trim() !== ""
+        s.name.trim() !== "" && s.phone.trim() !== "" && s.event.trim() !== ""
     );
 
   const addStudent = () => {
     setStudents([
       ...students,
-      { id: crypto.randomUUID(), name: "", email: "", event: "" },
+      { id: crypto.randomUUID(), name: "", phone: "", event: "" },
     ]);
     setTimeout(() => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -97,7 +97,7 @@ export default function Home() {
           schoolEmail,
           students: students.map(({ ...rest }) => ({
             name: rest.name,
-            email: rest.email,
+            phone: rest.phone,
             event: rest.event
           })),
         }),
@@ -115,7 +115,7 @@ export default function Home() {
       // Reset form
       setSchoolName("");
       setSchoolEmail("");
-      setStudents([{ id: crypto.randomUUID(), name: "", email: "", event: "" }]);
+      setStudents([{ id: crypto.randomUUID(), name: "", phone: "", event: "" }]);
 
       // Redirect to external URL
       window.location.href = "https://livewire.imreallyadi.space/";
@@ -225,17 +225,17 @@ export default function Home() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-foreground">
-                          Student Email
+                          Student Phone No.
                         </label>
                         <input
-                          type="email"
+                          type="tel"
                           required
-                          value={student.email}
+                          value={student.phone}
                           onChange={(e) =>
-                            updateStudent(student.id, "email", e.target.value)
+                            updateStudent(student.id, "phone", e.target.value)
                           }
                           className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
-                          placeholder="john@example.com"
+                          placeholder="1234567890"
                         />
                       </div>
                       <div className="space-y-2">

@@ -12,7 +12,7 @@ type RegistrationRecord = {
   schoolName: string;
   schoolEmail: string;
   studentName: string;
-  studentEmail: string;
+  studentPhone: string;
   event: string;
 };
 
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
     const matchesSearch =
       item.schoolName.toLowerCase().includes(search.toLowerCase()) ||
       item.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      item.studentEmail.toLowerCase().includes(search.toLowerCase()) ||
+      item.studentPhone.toLowerCase().includes(search.toLowerCase()) ||
       item.event.toLowerCase().includes(search.toLowerCase());
 
     const matchesFilter = filterEvent === "All" || item.event === filterEvent;
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                     { key: "timestamp", label: "Date & Time" },
                     { key: "schoolName", label: "School" },
                     { key: "studentName", label: "Student" },
-                    { key: "studentEmail", label: "Student Email" },
+                    { key: "studentPhone", label: "Student Phone No." },
                     { key: "event", label: "Event" },
                   ].map(({ key, label }) => (
                     <th
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
                         {record.studentName}
                       </td>
                       <td className="px-6 py-4 text-neutral-500 whitespace-nowrap">
-                        {record.studentEmail}
+                        {record.studentPhone}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-xs font-medium">
