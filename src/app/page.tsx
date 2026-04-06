@@ -65,18 +65,17 @@ export default function Home() {
 
   const createTeamForEvent = (eventName: string) => {
     const eventDetails = getEventDetails(eventName);
-    const teamSize = eventDetails?.teamSize || 1;
 
     const newTeam: Team = {
       id: crypto.randomUUID(),
       event: eventName,
-      members: Array.from({ length: teamSize }, () => ({
+      members: [{
         id: crypto.randomUUID(),
         name: "",
         class: "",
         phone: "",
         inGameId: eventDetails?.requiresInGameId ? "" : undefined,
-      })),
+      }],
     };
 
     setCurrentTeam(newTeam);
@@ -325,7 +324,7 @@ export default function Home() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Users className="w-3 h-3" />
                       <span>
-                        {eventDetails?.teamSize ? `${eventDetails.teamSize} players` : ""}
+                        {eventDetails?.teamSize ? `Max ${eventDetails.teamSize} participants` : ""}
                       </span>
                     </div>
                     {eventDetails?.requiresInGameId && (
@@ -344,31 +343,32 @@ export default function Home() {
                 {teams.map((team) => (
                   <motion.div
                     key={team.id}
+                    layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-card text-card-foreground p-6 rounded-3xl shadow-custom border border-border"
+                    className="bg-card text-card-foreground p-6 sm:p-8 rounded-3xl shadow-xl border border-border"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="font-medium">{team.event}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {team.members.length} member{team.members.length !== 1 ? 's' : ''}
+                          {team.members.length} participant{team.members.length !== 1 ? 's' : ''}
                         </p>
                       </div>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => editTeam(team)}
-                          className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                          className="px-4 py-2 text-sm bg-primary/10 text-primary font-medium rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => removeTeam(team.id)}
-                          className="px-3 py-1 text-sm bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors"
+                          className="px-4 py-2 text-sm bg-destructive/10 text-destructive font-medium rounded-xl hover:bg-destructive hover:text-destructive-foreground transition-all"
                         >
                           Remove
                         </button>
@@ -421,50 +421,54 @@ export default function Home() {
               onClick={() => setShowTeamModal(false)}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-card text-card-foreground rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-card text-card-foreground rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="p-6 border-b border-border">
+                <div className="p-6 sm:p-8 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-semibold">{currentTeam.event}</h2>
                       <p className="text-sm text-muted-foreground">
-                        {currentTeam.members.length} team member{currentTeam.members.length !== 1 ? 's' : ''}
+                        {currentTeam.members.length} {getEventDetails(currentTeam.event)?.teamSize ? `/ ${getEventDetails(currentTeam.event)?.teamSize}` : ''} {currentTeam.members.length === 1 && !getEventDetails(currentTeam.event)?.teamSize ? 'participant' : 'participants'} added
                       </p>
                     </div>
                     <button
                       onClick={() => setShowTeamModal(false)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                      className="p-2 hover:bg-muted rounded-xl transition-colors hover:rotate-90 duration-200"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-6 h-6" />
                     </button>
                   </div>
                 </div>
 
-                <div className="p-6 max-h-[60vh] overflow-y-auto">
-                  <div className="space-y-6">
-                    {currentTeam.members.map((member, index) => {
-                      const eventDetails = getEventDetails(currentTeam.event);
-                      return (
-                        <motion.div
-                          key={member.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="bg-muted/50 rounded-2xl p-4"
-                        >
+                <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+                  <div className="space-y-8">
+                    <AnimatePresence mode="popLayout">
+                      {currentTeam.members.map((member, index) => {
+                        const eventDetails = getEventDetails(currentTeam.event);
+                        return (
+                          <motion.div
+                            layout
+                            key={member.id}
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, height: 0, margin: 0, padding: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="bg-background rounded-3xl p-6 sm:p-8 border border-border shadow-md"
+                          >
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-medium">Team Member {index + 1}</h3>
+                            <h3 className="font-medium">Participant {index + 1}</h3>
                             {currentTeam.members.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() => removeTeamMember(member.id)}
-                                className="text-destructive hover:bg-destructive/10 p-1 rounded transition-colors"
+                                className="text-destructive hover:bg-destructive hover:text-destructive-foreground p-2 rounded-xl transition-colors"
                               >
-                                <X className="w-4 h-4" />
+                                <X className="w-5 h-5" />
                               </button>
                             )}
                           </div>
@@ -475,7 +479,7 @@ export default function Home() {
                                 type="text"
                                 value={member.name}
                                 onChange={(e) => updateTeamMember(member.id, "name", e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                                 placeholder="Full name"
                               />
                             </div>
@@ -485,7 +489,7 @@ export default function Home() {
                                 type="text"
                                 value={member.class}
                                 onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                                 placeholder="e.g. 12th"
                               />
                             </div>
@@ -495,7 +499,7 @@ export default function Home() {
                                 type="tel"
                                 value={member.phone}
                                 onChange={(e) => updateTeamMember(member.id, "phone", e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                                 placeholder="1234567890"
                               />
                             </div>
@@ -508,38 +512,41 @@ export default function Home() {
                                   type="text"
                                   value={member.inGameId || ""}
                                   onChange={(e) => updateTeamMember(member.id, "inGameId", e.target.value)}
-                                  className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                  className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                                   placeholder={`e.g., ${eventDetails.idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : eventDetails.idFormat === "Epic Games ID / Rocket ID" ? "YourEpicID" : "1234567890 (IGN)"}`}
                                 />
                               </div>
                             )}
                           </div>
-                        </motion.div>
-                      );
-                    })}
-                    <div className="flex justify-center pt-4">
-                      <button
-                        type="button"
-                        onClick={addTeamMember}
-                        className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
-                      >
-                        <PlusCircle className="w-4 h-4" />
-                        Add Member
-                      </button>
-                    </div>
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                    {(!getEventDetails(currentTeam.event)?.teamSize || currentTeam.members.length < getEventDetails(currentTeam.event)!.teamSize!) && (
+                      <div className="flex justify-center pt-4">
+                        <button
+                          type="button"
+                          onClick={addTeamMember}
+                          className="px-6 py-3 bg-primary/10 text-primary font-medium rounded-2xl hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-2 shadow-sm"
+                        >
+                          <PlusCircle className="w-5 h-5" />
+                          Add Participant
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="p-6 border-t border-border flex justify-end gap-3">
+                <div className="p-6 sm:p-8 border-t border-border bg-card/50 backdrop-blur-sm flex justify-end gap-4 sticky bottom-0 z-10">
                   <button
                     onClick={() => setShowTeamModal(false)}
-                    className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+                    className="px-6 py-3 text-muted-foreground font-medium hover:bg-muted rounded-2xl transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={saveTeam}
-                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                    className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-2xl hover:bg-primary/90 hover:scale-105 transition-all shadow-lg"
                   >
                     Save Team
                   </button>
