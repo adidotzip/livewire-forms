@@ -281,7 +281,7 @@ export default function Home() {
       setSchoolEmail("");
       setTeams([]);
 
-      window.location.href = "https://livewire.imreallyadi.space/";
+      window.location.href = "https://thelivewire.club/";
 
     } catch (error) {
       console.error(error);
