@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PlusCircle, Send, GraduationCap, Users, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Send, GraduationCap, Users, X, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT_LIST, EVENT_DETAILS } from "@/lib/events";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,6 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
 
   useEffect(() => {
@@ -83,7 +82,6 @@ export default function Home() {
     };
 
     setCurrentTeam(newTeam);
-    setSelectedEvent(eventName);
     setShowTeamModal(true);
   };
 
@@ -117,7 +115,6 @@ export default function Home() {
 
     setShowTeamModal(false);
     setCurrentTeam(null);
-    setSelectedEvent("");
     toast.success("Team saved successfully!");
   };
 
@@ -128,7 +125,6 @@ export default function Home() {
 
   const editTeam = (team: Team) => {
     setCurrentTeam(team);
-    setSelectedEvent(team.event);
     setShowTeamModal(true);
   };
 
