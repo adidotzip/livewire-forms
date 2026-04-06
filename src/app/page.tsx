@@ -316,7 +316,7 @@ export default function Home() {
                   ? "border-green-500/50 bg-green-500/10 shadow-[0_0_20px_rgba(34,197,94,0.1)]"
                   : isSelected && progress?.status === "in-progress"
                   ? "border-orange-500/50 bg-orange-500/10 shadow-[0_0_20px_rgba(249,115,22,0.1)]"
-                  : "border-white/10 bg-background/40 hover:bg-background/60 hover:border-white/20"
+                  : "border-border/50 bg-background/40 hover:bg-background/60 hover:border-border"
               )}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
@@ -385,7 +385,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-md border border-white/10 rounded-full shadow-lg text-sm font-medium"
+            className="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-md border border-border/50 rounded-full shadow-lg text-sm font-medium"
           >
             {saveState === "saving" ? (
               <><Cloud className="w-4 h-4 animate-pulse text-muted-foreground" /> Saving...</>
@@ -404,7 +404,7 @@ export default function Home() {
             src="https://framerusercontent.com/images/GuPYr7ZLGnklkwJ5MitUN7nvgcA.png" 
             alt="Event Logo" 
             onClick={() => window.location.href = "/events"}
-            className="w-20 h-20 object-cover rounded-2xl mx-auto shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300 ring-2 ring-white/20"
+            className="w-20 h-20 object-cover rounded-2xl mx-auto shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300 ring-2 ring-ring/50"
           />
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground drop-shadow-sm">
@@ -419,7 +419,7 @@ export default function Home() {
         <form onSubmit={handleSubmit} className="space-y-10">
           
           {/* School Information */}
-          <div className="bg-background/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-2xl border border-white/10">
+          <div className="bg-background/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-2xl border border-border/50">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <div className="w-2 h-6 bg-primary rounded-full"></div>
               School Information
@@ -429,7 +429,7 @@ export default function Home() {
                 <label className="text-sm font-bold text-foreground/80 pl-1 uppercase tracking-wider text-xs">School Name</label>
                 <input
                   type="text" required value={schoolName} onChange={(e) => setSchoolName(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-background/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"
+                  className="w-full px-4 py-3.5 rounded-2xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground text-base sm:text-sm"
                   placeholder="e.g. Springfield High"
                 />
               </div>
@@ -437,7 +437,7 @@ export default function Home() {
                 <label className="text-sm font-bold text-foreground/80 pl-1 uppercase tracking-wider text-xs">School Email</label>
                 <input
                   type="email" required value={schoolEmail} onChange={(e) => setSchoolEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-background/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"
+                  className="w-full px-4 py-3.5 rounded-2xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground text-base sm:text-sm"
                   placeholder="school@example.com"
                 />
               </div>
@@ -458,7 +458,7 @@ export default function Home() {
           </div>
 
           {/* Sticky Submit Footer */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 sm:p-6 bg-background/80 backdrop-blur-xl border-t border-white/10 flex flex-col items-center justify-center z-40">
+          <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe sm:p-6 bg-background/80 backdrop-blur-xl border-t border-border/50 flex flex-col items-center justify-center z-40">
             {!isFormValid && (
               <p className="text-orange-500 text-sm font-semibold mb-3 flex items-center gap-1.5">
                 <AlertCircle className="w-4 h-4" /> {formError}
@@ -497,12 +497,12 @@ export default function Home() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-background border border-white/10 sm:rounded-[2rem] shadow-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-background border border-border/50 sm:rounded-[2rem] shadow-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleKeyDown}
               >
                 {/* Modal Header */}
-                <div className="p-5 sm:p-8 border-b border-white/10 bg-muted/30 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10">
+                <div className="p-5 sm:p-8 border-b border-border/50 bg-muted/30 backdrop-blur-xl flex items-center justify-between sticky top-0 z-10">
                   <div className="w-full pr-4">
                     <h2 className="text-2xl font-bold">{currentTeam.event}</h2>
                     {/* Progress Bar in Header */}
@@ -558,7 +558,7 @@ export default function Home() {
                           initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                           className={cn(
                             "bg-card rounded-3xl p-5 sm:p-6 border shadow-lg relative transition-colors duration-300",
-                            isMemberComplete ? "border-green-500/30 bg-green-500/5" : "border-white/5",
+                            isMemberComplete ? "border-green-500/30 bg-green-500/5" : "border-border/30",
                             showErrors && !isMemberComplete ? "border-red-500/50" : ""
                           )}
                         >
@@ -576,7 +576,7 @@ export default function Home() {
                               {index < currentTeam.members.length - 1 && (
                                 <button
                                   type="button" onClick={() => duplicateToNext(index)}
-                                  className="text-xs flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-lg bg-background/50 border border-white/5"
+                                  className="text-xs flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-lg bg-background/50 border border-border/30"
                                   title="Copy Class & Phone to next participant"
                                 >
                                   <Copy className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Copy to Next</span>
@@ -601,8 +601,8 @@ export default function Home() {
                               <input
                                 type="text" value={member.name} onChange={(e) => updateTeamMember(member.id, "name", e.target.value)}
                                 className={cn(
-                                  "w-full px-4 py-3 rounded-xl bg-background border focus:outline-none focus:ring-2 transition-all font-medium",
-                                  showErrors && !isNameValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50"
+                                  "w-full px-4 py-3 rounded-xl bg-card border focus:outline-none focus:ring-2 transition-all font-medium text-base sm:text-sm",
+                                  showErrors && !isNameValid ? "border-red-500/50 focus:ring-red-500/50" : "border-border focus:ring-primary/50"
                                 )}
                                 placeholder="Full name"
                               />
@@ -614,8 +614,8 @@ export default function Home() {
                               <input
                                 type="text" value={member.class} onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
                                 className={cn(
-                                  "w-full px-4 py-3 rounded-xl bg-background border focus:outline-none focus:ring-2 transition-all font-medium",
-                                  showErrors && !isClassValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50"
+                                  "w-full px-4 py-3 rounded-xl bg-card border focus:outline-none focus:ring-2 transition-all font-medium text-base sm:text-sm",
+                                  showErrors && !isClassValid ? "border-red-500/50 focus:ring-red-500/50" : "border-border focus:ring-primary/50"
                                 )}
                                 placeholder="e.g. 12th A"
                               />
@@ -627,8 +627,8 @@ export default function Home() {
                               <input
                                 type="tel" value={member.phone} onChange={(e) => updateTeamMember(member.id, "phone", e.target.value)}
                                 className={cn(
-                                  "w-full px-4 py-3 rounded-xl bg-background border focus:outline-none focus:ring-2 transition-all font-medium",
-                                  showErrors && !isPhoneValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50"
+                                  "w-full px-4 py-3 rounded-xl bg-card border focus:outline-none focus:ring-2 transition-all font-medium text-base sm:text-sm",
+                                  showErrors && !isPhoneValid ? "border-red-500/50 focus:ring-red-500/50" : "border-border focus:ring-primary/50"
                                 )}
                                 placeholder="Contact number"
                               />
@@ -643,7 +643,7 @@ export default function Home() {
                                 <input
                                   type="text" value={member.inGameId || ""} onChange={(e) => updateTeamMember(member.id, "inGameId", e.target.value)}
                                   className={cn(
-                                    "w-full px-4 py-3 rounded-xl bg-orange-500/5 border focus:outline-none focus:ring-2 transition-all font-medium placeholder:text-orange-500/40",
+                                    "w-full px-4 py-3 rounded-xl bg-orange-500/5 border focus:outline-none focus:ring-2 transition-all font-medium text-base sm:text-sm placeholder:text-orange-500/40",
                                     showErrors && !isIdValid ? "border-red-500/50 focus:ring-red-500/50" : "border-orange-500/20 focus:ring-orange-500/50"
                                   )}
                                   placeholder={`e.g., ${eventDetails.idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : "1234567890 (IGN)"}`}
@@ -670,7 +670,7 @@ export default function Home() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-5 sm:p-6 border-t border-white/10 bg-muted/30 backdrop-blur-xl flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
+                <div className="p-5 pb-safe sm:p-6 border-t border-border/50 bg-muted/30 backdrop-blur-xl flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
                   <button
                     onClick={() => setShowTeamModal(false)}
                     className="px-6 py-4 sm:py-3 text-muted-foreground font-semibold hover:bg-background rounded-2xl transition-all order-2 sm:order-1"
