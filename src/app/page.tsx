@@ -203,7 +203,6 @@ export default function Home() {
     if (!currentTeam || currentIndex >= currentTeam.members.length - 1) return;
     
     const currentMember = currentTeam.members[currentIndex];
-    const nextMember = currentTeam.members[currentIndex + 1];
 
     setCurrentTeam(prev => ({
       ...prev!,
@@ -520,9 +519,25 @@ export default function Home() {
                        </div>
                     </div>
                   </div>
-                  <button onClick={() => setShowTeamModal(false)} className="p-3 bg-background hover:bg-muted rounded-full transition-all hover:rotate-90">
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <button 
+                      onClick={() => {
+                        removeTeam(currentTeam.id);
+                        setShowTeamModal(false);
+                      }} 
+                      className="p-3 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
+                      title="Delete Team"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => setShowTeamModal(false)} 
+                      className="p-3 bg-background hover:bg-muted rounded-full transition-all hover:rotate-90"
+                      title="Close"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Modal Body */}
