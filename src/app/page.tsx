@@ -1,42 +1,50 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PlusCircle, Trash2, Send, GraduationCap } from "lucide-react";
+import { PlusCircle, Send, GraduationCap, Users, X, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT_LIST, EVENT_DETAILS } from "@/lib/events";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 
-type Student = {
+type TeamMember = {
   id: string;
   name: string;
+  class: string;
+  section: string;
   phone: string;
-  event: string;
   inGameId?: string;
+};
+
+type Team = {
+  id: string;
+  event: string;
+  members: TeamMember[];
 };
 
 export default function Home() {
   const [schoolName, setSchoolName] = useState("");
   const [schoolEmail, setSchoolEmail] = useState("");
-  const [students, setStudents] = useState<Student[]>([
-    { id: crypto.randomUUID(), name: "", phone: "", event: "" },
-  ]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<string>("");
+  const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
 
   useEffect(() => {
     setMounted(true);
     const savedSchoolName = localStorage.getItem("schoolName");
     const savedSchoolEmail = localStorage.getItem("schoolEmail");
-    const savedStudents = localStorage.getItem("students");
+    const savedTeams = localStorage.getItem("teams");
 
     if (savedSchoolName) setSchoolName(savedSchoolName);
     if (savedSchoolEmail) setSchoolEmail(savedSchoolEmail);
-    if (savedStudents) {
+    if (savedTeams) {
       try {
-        setStudents(JSON.parse(savedStudents));
+        setTeams(JSON.parse(savedTeams));
       } catch (e) {
-        console.error("Failed to parse students from local storage", e);
+        console.error("Failed to parse teams from local storage", e);
       }
     }
   }, []);
@@ -45,45 +53,110 @@ export default function Home() {
     if (mounted) {
       localStorage.setItem("schoolName", schoolName);
       localStorage.setItem("schoolEmail", schoolEmail);
-      localStorage.setItem("students", JSON.stringify(students));
+      localStorage.setItem("teams", JSON.stringify(teams));
     }
-  }, [schoolName, schoolEmail, students, mounted]);
+  }, [schoolName, schoolEmail, teams, mounted]);
 
   const isEmailValid = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  const getEventDetails = (eventName: string) => {
+    return EVENT_DETAILS[eventName];
+  };
+
+  const createTeamForEvent = (eventName: string) => {
+    const eventDetails = getEventDetails(eventName);
+    const teamSize = eventDetails?.teamSize || 1;
+
+    const newTeam: Team = {
+      id: crypto.randomUUID(),
+      event: eventName,
+      members: Array.from({ length: teamSize }, () => ({
+        id: crypto.randomUUID(),
+        name: "",
+        class: "",
+        section: "",
+        phone: "",
+        inGameId: eventDetails?.requiresInGameId ? "" : undefined,
+      })),
+    };
+
+    setCurrentTeam(newTeam);
+    setSelectedEvent(eventName);
+    setShowTeamModal(true);
+  };
+
+  const saveTeam = () => {
+    if (!currentTeam) return;
+
+    const eventDetails = getEventDetails(currentTeam.event);
+    const isValid = currentTeam.members.every(member =>
+      member.name.trim() !== "" &&
+      member.class.trim() !== "" &&
+      member.section.trim() !== "" &&
+      member.phone.trim() !== "" &&
+      (!eventDetails?.requiresInGameId || (member.inGameId && member.inGameId.trim() !== ""))
+    );
+
+    if (!isValid) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setTeams(prev => {
+      const existingIndex = prev.findIndex(t => t.id === currentTeam.id);
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = currentTeam;
+        return updated;
+      } else {
+        return [...prev, currentTeam];
+      }
+    });
+
+    setShowTeamModal(false);
+    setCurrentTeam(null);
+    setSelectedEvent("");
+    toast.success("Team saved successfully!");
+  };
+
+  const removeTeam = (teamId: string) => {
+    setTeams(prev => prev.filter(t => t.id !== teamId));
+    toast.success("Team removed");
+  };
+
+  const editTeam = (team: Team) => {
+    setCurrentTeam(team);
+    setSelectedEvent(team.event);
+    setShowTeamModal(true);
+  };
+
+  const updateTeamMember = (memberId: string, field: keyof TeamMember, value: string) => {
+    if (!currentTeam) return;
+
+    setCurrentTeam(prev => ({
+      ...prev!,
+      members: prev!.members.map(member =>
+        member.id === memberId ? { ...member, [field]: value } : member
+      ),
+    }));
+  };
+
   const isFormValid =
     schoolName.trim() !== "" &&
     isEmailValid(schoolEmail) &&
-    students.length > 0 &&
-    students.every(
-      (s) => {
-        const requiresId = EVENT_DETAILS[s.event]?.requiresInGameId;
-        return s.name.trim() !== "" && s.phone.trim() !== "" && s.event.trim() !== "" &&
-               (!requiresId || (s.inGameId && s.inGameId.trim() !== ""));
-      }
+    teams.length > 0 &&
+    teams.every(team =>
+      team.members.every(member => {
+        const eventDetails = getEventDetails(team.event);
+        return member.name.trim() !== "" &&
+               member.class.trim() !== "" &&
+               member.section.trim() !== "" &&
+               member.phone.trim() !== "" &&
+               (!eventDetails?.requiresInGameId || (member.inGameId && member.inGameId.trim() !== ""));
+      })
     );
-
-  const addStudent = () => {
-    setStudents([
-      ...students,
-      { id: crypto.randomUUID(), name: "", phone: "", event: "" },
-    ]);
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    }, 100);
-  };
-
-  const removeStudent = (id: string) => {
-    setStudents(students.filter((s) => s.id !== id));
-  };
-
-  const updateStudent = (id: string, field: keyof Student, value: string) => {
-    setStudents(
-      students.map((s) => (s.id === id ? { ...s, [field]: value } : s))
-    );
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,18 +166,25 @@ export default function Home() {
     const toastId = toast.loading("Submitting registration...");
 
     try {
+      // Convert teams to individual student records for the API
+      const students = teams.flatMap(team =>
+        team.members.map(member => ({
+          name: member.name,
+          phone: member.phone,
+          event: team.event,
+          inGameId: member.inGameId || null,
+          class: member.class,
+          section: member.section,
+        }))
+      );
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           schoolName,
           schoolEmail,
-          students: students.map(({ id, ...rest }) => ({
-            name: rest.name,
-            phone: rest.phone,
-            event: rest.event,
-            inGameId: rest.inGameId || null,
-          })),
+          students,
         }),
       });
 
@@ -115,12 +195,12 @@ export default function Home() {
       // Clear local storage
       localStorage.removeItem("schoolName");
       localStorage.removeItem("schoolEmail");
-      localStorage.removeItem("students");
+      localStorage.removeItem("teams");
 
       // Reset form
       setSchoolName("");
       setSchoolEmail("");
-      setStudents([{ id: crypto.randomUUID(), name: "", phone: "", event: "" }]);
+      setTeams([]);
 
       // Redirect to external URL
       window.location.href = "https://livewire.imreallyadi.space/";
@@ -183,118 +263,110 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Students Section */}
+          {/* Teams Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-medium text-foreground">
-                Students ({students.length})
+                Teams ({teams.length})
               </h2>
             </div>
 
+            {/* Event Selection Grid */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {EVENT_LIST.map((event) => {
+                const eventDetails = getEventDetails(event);
+                const existingTeam = teams.find(t => t.event === event);
+                const isSelected = existingTeam !== undefined;
+
+                return (
+                  <motion.button
+                    key={event}
+                    type="button"
+                    onClick={() => {
+                      if (existingTeam) {
+                        editTeam(existingTeam);
+                      } else {
+                        createTeamForEvent(event);
+                      }
+                    }}
+                    className={cn(
+                      "p-4 rounded-2xl border-2 transition-all text-left",
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-lg"
+                        : "border-border hover:border-primary/50 hover:shadow-md"
+                    )}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium text-sm">{event}</h3>
+                      {isSelected && (
+                        <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Users className="w-3 h-3" />
+                      <span>
+                        {eventDetails?.teamSize ? `${eventDetails.teamSize} players` : "No limit"}
+                      </span>
+                    </div>
+                    {eventDetails?.requiresInGameId && (
+                      <div className="mt-1 text-xs text-orange-600">
+                        Requires in-game ID
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* Teams List */}
             <div className="space-y-4">
               <AnimatePresence>
-                {students.map((student) => (
+                {teams.map((team) => (
                   <motion.div
-                    key={student.id}
+                    key={team.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-card text-card-foreground p-6 rounded-3xl shadow-custom border border-border relative group"
+                    className="bg-card text-card-foreground p-6 rounded-3xl shadow-custom border border-border"
                   >
-                    {students.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeStudent(student.id)}
-                        className="absolute -right-3 -top-3 p-2 bg-background text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full shadow-custom border border-border opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-
-                    <div className="grid gap-6 sm:grid-cols-3">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Student Name
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={student.name}
-                          onChange={(e) =>
-                            updateStudent(student.id, "name", e.target.value)
-                          }
-                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
-                          placeholder="John Doe"
-                        />
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-medium">{team.event}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {team.members.length} member{team.members.length !== 1 ? 's' : ''}
+                        </p>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Student Phone No.
-                        </label>
-                        <input
-                          type="tel"
-                          required
-                          value={student.phone}
-                          onChange={(e) =>
-                            updateStudent(student.id, "phone", e.target.value)
-                          }
-                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
-                          placeholder="1234567890"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Event
-                        </label>
-                        <select
-                          required
-                          value={student.event}
-                          onChange={(e) =>
-                            updateStudent(student.id, "event", e.target.value)
-                          }
-                          className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all appearance-none cursor-pointer text-foreground"
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => editTeam(team)}
+                          className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
                         >
-                          <option value="" disabled>Select an event...</option>
-                          {EVENT_LIST.map((event) => (
-                            <option key={event} value={event}>
-                              {event}
-                            </option>
-                          ))}
-                        </select>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeTeam(team.id)}
+                          className="px-3 py-1 text-sm bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors"
+                        >
+                          Remove
+                        </button>
                       </div>
-                      {EVENT_DETAILS[student.event]?.requiresInGameId && (
-                        <div className="space-y-2 sm:col-span-3">
-                          <label className="text-sm font-medium text-foreground">
-                            In-Game ID ({EVENT_DETAILS[student.event].idFormat})
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={student.inGameId || ""}
-                            onChange={(e) =>
-                              updateStudent(student.id, "inGameId", e.target.value)
-                            }
-                            className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
-                            placeholder={`e.g., ${EVENT_DETAILS[student.event].idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : EVENT_DETAILS[student.event].idFormat === "Epic Games ID / Rocket ID" ? "YourEpicID" : "1234567890 (IGN)"}`}
-                          />
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {team.members.map((member, index) => (
+                        <div key={member.id} className="text-sm">
+                          <span className="font-medium">{member.name || `Member ${index + 1}`}</span>
+                          {member.class && <span className="text-muted-foreground"> - {member.class}{member.section}</span>}
                         </div>
-                      )}
+                      ))}
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
-            </div>
-
-            <div className="sticky bottom-24 left-0 right-0 z-40 flex justify-center pointer-events-none">
-              <button
-                type="button"
-                onClick={addStudent}
-                className="py-4 px-8 bg-card/90 backdrop-blur-md border border-border shadow-custom rounded-full text-foreground font-medium hover:bg-accent hover:scale-105 transition-all flex items-center justify-center gap-2 pointer-events-auto"
-              >
-                <PlusCircle className="w-5 h-5 text-primary" />
-                Add Another Student
-              </button>
             </div>
           </div>
 
@@ -319,6 +391,134 @@ export default function Home() {
             </button>
           </div>
         </form>
+
+        {/* Team Modal */}
+        <AnimatePresence>
+          {showTeamModal && currentTeam && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowTeamModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-card text-card-foreground rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-6 border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold">{currentTeam.event}</h2>
+                      <p className="text-sm text-muted-foreground">
+                        {currentTeam.members.length} team member{currentTeam.members.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowTeamModal(false)}
+                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 max-h-[60vh] overflow-y-auto">
+                  <div className="space-y-6">
+                    {currentTeam.members.map((member, index) => {
+                      const eventDetails = getEventDetails(currentTeam.event);
+                      return (
+                        <motion.div
+                          key={member.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-muted/50 rounded-2xl p-4"
+                        >
+                          <h3 className="font-medium mb-4">Team Member {index + 1}</h3>
+                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Name *</label>
+                              <input
+                                type="text"
+                                value={member.name}
+                                onChange={(e) => updateTeamMember(member.id, "name", e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                placeholder="Full name"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Class *</label>
+                              <input
+                                type="text"
+                                value={member.class}
+                                onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                placeholder="e.g. 12th"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Section *</label>
+                              <input
+                                type="text"
+                                value={member.section}
+                                onChange={(e) => updateTeamMember(member.id, "section", e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                placeholder="e.g. A"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Phone *</label>
+                              <input
+                                type="tel"
+                                value={member.phone}
+                                onChange={(e) => updateTeamMember(member.id, "phone", e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                placeholder="1234567890"
+                              />
+                            </div>
+                            {eventDetails?.requiresInGameId && (
+                              <div className="space-y-2 sm:col-span-2 lg:col-span-4">
+                                <label className="text-sm font-medium">
+                                  In-Game ID * ({eventDetails.idFormat})
+                                </label>
+                                <input
+                                  type="text"
+                                  value={member.inGameId || ""}
+                                  onChange={(e) => updateTeamMember(member.id, "inGameId", e.target.value)}
+                                  className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                                  placeholder={`e.g., ${eventDetails.idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : eventDetails.idFormat === "Epic Games ID / Rocket ID" ? "YourEpicID" : "1234567890 (IGN)"}`}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="p-6 border-t border-border flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowTeamModal(false)}
+                    className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveTeam}
+                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  >
+                    Save Team
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </main>
   );

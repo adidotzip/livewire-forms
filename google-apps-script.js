@@ -17,12 +17,14 @@ function getSheet() {
       "School Name",
       "School Email",
       "Student Name",
-      "Student Phone No.",
+      "Class",
+      "Section",
+      "Phone No.",
       "Event",
       "In-Game ID"
     ]);
     // Make headers bold
-    sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold");
     sheet.setFrozenRows(1);
   }
   return sheet;
@@ -45,6 +47,8 @@ function doPost(e) {
       schoolName,
       schoolEmail,
       student.name,
+      student.class || "",
+      student.section || "",
       student.phone,
       student.event,
       student.inGameId || ""
@@ -88,9 +92,11 @@ function doGet(e) {
         schoolName: row[1],
         schoolEmail: row[2],
         studentName: row[3],
-        studentPhone: row[4],
-        event: row[5],
-        inGameId: row[6] || null
+        studentClass: row[4],
+        studentSection: row[5],
+        studentPhone: row[6],
+        event: row[7],
+        inGameId: row[8] || null
       };
       jsonData.push(obj);
     }

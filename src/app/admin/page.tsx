@@ -12,6 +12,8 @@ type RegistrationRecord = {
   schoolName: string;
   schoolEmail: string;
   studentName: string;
+  studentClass?: string;
+  studentSection?: string;
   studentPhone: string;
   event: string;
   inGameId?: string;
@@ -252,7 +254,9 @@ export default function AdminDashboard() {
                       { key: "timestamp", label: "Date & Time" },
                       { key: "schoolName", label: "School" },
                       { key: "studentName", label: "Student" },
-                      { key: "studentPhone", label: "Student Phone No." },
+                    { key: "studentClass", label: "Class" },
+                    { key: "studentSection", label: "Section" },
+                    { key: "studentPhone", label: "Phone No." },
                       { key: "event", label: "Event" },
                       ...(filteredData.some(d => d.inGameId) ? [{ key: "inGameId", label: "In-Game ID" }] : []),
                     ].map(({ key, label }) => (
@@ -278,7 +282,7 @@ export default function AdminDashboard() {
                     // Loading skeletons
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={`skeleton-${i}`} className="animate-pulse bg-white">
-                        {Array.from({ length: filteredData.some(d => d.inGameId) ? 6 : 5 }).map((_, j) => (
+                      {Array.from({ length: filteredData.some(d => d.inGameId) ? 8 : 7 }).map((_, j) => (
                           <td key={`cell-${i}-${j}`} className="px-6 py-5">
                             <div className="h-4 bg-neutral-200 rounded-full w-3/4"></div>
                           </td>
@@ -287,7 +291,7 @@ export default function AdminDashboard() {
                     ))
                   ) : sortedData.length === 0 ? (
                     <tr>
-                      <td colSpan={filteredData.some(d => d.inGameId) ? 6 : 5} className="px-6 py-12 text-center text-neutral-500">
+                      <td colSpan={filteredData.some(d => d.inGameId) ? 8 : 7} className="px-6 py-12 text-center text-neutral-500">
                         No records found matching your criteria.
                       </td>
                     </tr>
@@ -303,6 +307,12 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-6 py-4 font-medium text-neutral-900 whitespace-nowrap">
                           {record.studentName}
+                        </td>
+                        <td className="px-6 py-4 text-neutral-500 whitespace-nowrap">
+                          {record.studentClass || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-neutral-500 whitespace-nowrap">
+                          {record.studentSection || "-"}
                         </td>
                         <td className="px-6 py-4 text-neutral-500 whitespace-nowrap">
                           {record.studentPhone}
