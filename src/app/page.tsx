@@ -403,7 +403,7 @@ export default function Home() {
             initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             src="https://framerusercontent.com/images/GuPYr7ZLGnklkwJ5MitUN7nvgcA.png" 
             alt="Event Logo" 
-            onClick={() => window.location.href = "/events"}
+            onClick={() => window.location.href = "/"}
             className="w-20 h-20 object-cover rounded-2xl mx-auto shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300 ring-2 ring-ring/50"
           />
           <div className="space-y-2">
@@ -617,7 +617,7 @@ export default function Home() {
                                   "w-full px-4 py-3 rounded-xl bg-card border focus:outline-none focus:ring-2 transition-all font-medium text-base sm:text-sm",
                                   showErrors && !isClassValid ? "border-red-500/50 focus:ring-red-500/50" : "border-border focus:ring-primary/50"
                                 )}
-                                placeholder="e.g. 12th A"
+                                placeholder="e.g. 10"
                               />
                             </div>
                             <div className="space-y-1.5">
