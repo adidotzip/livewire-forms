@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, GraduationCap, Users, X, CheckCircle } from "lucide-react";
+import { Send, GraduationCap, Users, X, CheckCircle, PlusCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT_LIST, EVENT_DETAILS } from "@/lib/events";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,6 @@ type TeamMember = {
   id: string;
   name: string;
   class: string;
-  section: string;
   phone: string;
   inGameId?: string;
 };
@@ -75,7 +74,6 @@ export default function Home() {
         id: crypto.randomUUID(),
         name: "",
         class: "",
-        section: "",
         phone: "",
         inGameId: eventDetails?.requiresInGameId ? "" : undefined,
       })),
@@ -92,7 +90,6 @@ export default function Home() {
     const isValid = currentTeam.members.every(member =>
       member.name.trim() !== "" &&
       member.class.trim() !== "" &&
-      member.section.trim() !== "" &&
       member.phone.trim() !== "" &&
       (!eventDetails?.requiresInGameId || (member.inGameId && member.inGameId.trim() !== ""))
     );
@@ -139,6 +136,33 @@ export default function Home() {
     }));
   };
 
+  const addTeamMember = () => {
+    if (!currentTeam) return;
+
+    const eventDetails = getEventDetails(currentTeam.event);
+    const newMember: TeamMember = {
+      id: crypto.randomUUID(),
+      name: "",
+      class: "",
+      phone: "",
+      inGameId: eventDetails?.requiresInGameId ? "" : undefined,
+    };
+
+    setCurrentTeam(prev => ({
+      ...prev!,
+      members: [...prev!.members, newMember],
+    }));
+  };
+
+  const removeTeamMember = (memberId: string) => {
+    if (!currentTeam) return;
+
+    setCurrentTeam(prev => ({
+      ...prev!,
+      members: prev!.members.filter(member => member.id !== memberId),
+    }));
+  };
+
   const isFormValid =
     schoolName.trim() !== "" &&
     isEmailValid(schoolEmail) &&
@@ -148,7 +172,6 @@ export default function Home() {
         const eventDetails = getEventDetails(team.event);
         return member.name.trim() !== "" &&
                member.class.trim() !== "" &&
-               member.section.trim() !== "" &&
                member.phone.trim() !== "" &&
                (!eventDetails?.requiresInGameId || (member.inGameId && member.inGameId.trim() !== ""));
       })
@@ -170,7 +193,6 @@ export default function Home() {
           event: team.event,
           inGameId: member.inGameId || null,
           class: member.class,
-          section: member.section,
         }))
       );
 
@@ -303,7 +325,7 @@ export default function Home() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Users className="w-3 h-3" />
                       <span>
-                        {eventDetails?.teamSize ? `${eventDetails.teamSize} players` : "No limit"}
+                        {eventDetails?.teamSize ? `${eventDetails.teamSize} players` : ""}
                       </span>
                     </div>
                     {eventDetails?.requiresInGameId && (
@@ -356,7 +378,7 @@ export default function Home() {
                       {team.members.map((member, index) => (
                         <div key={member.id} className="text-sm">
                           <span className="font-medium">{member.name || `Member ${index + 1}`}</span>
-                          {member.class && <span className="text-muted-foreground"> - {member.class}{member.section}</span>}
+                          {member.class && <span className="text-muted-foreground"> - {member.class}</span>}
                         </div>
                       ))}
                     </div>
@@ -434,8 +456,19 @@ export default function Home() {
                           transition={{ delay: index * 0.1 }}
                           className="bg-muted/50 rounded-2xl p-4"
                         >
-                          <h3 className="font-medium mb-4">Team Member {index + 1}</h3>
-                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-medium">Team Member {index + 1}</h3>
+                            {currentTeam.members.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeTeamMember(member.id)}
+                                className="text-destructive hover:bg-destructive/10 p-1 rounded transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <div className="space-y-2">
                               <label className="text-sm font-medium">Name *</label>
                               <input
@@ -457,16 +490,6 @@ export default function Home() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">Section *</label>
-                              <input
-                                type="text"
-                                value={member.section}
-                                onChange={(e) => updateTeamMember(member.id, "section", e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                                placeholder="e.g. A"
-                              />
-                            </div>
-                            <div className="space-y-2">
                               <label className="text-sm font-medium">Phone *</label>
                               <input
                                 type="tel"
@@ -477,7 +500,7 @@ export default function Home() {
                               />
                             </div>
                             {eventDetails?.requiresInGameId && (
-                              <div className="space-y-2 sm:col-span-2 lg:col-span-4">
+                              <div className="space-y-2 sm:col-span-2 lg:col-span-3">
                                 <label className="text-sm font-medium">
                                   In-Game ID * ({eventDetails.idFormat})
                                 </label>
@@ -494,6 +517,16 @@ export default function Home() {
                         </motion.div>
                       );
                     })}
+                    <div className="flex justify-center pt-4">
+                      <button
+                        type="button"
+                        onClick={addTeamMember}
+                        className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        Add Member
+                      </button>
+                    </div>
                   </div>
                 </div>
 
