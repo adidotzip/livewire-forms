@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { PlusCircle, Trash2, Send, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { EVENT_LIST } from "@/lib/events";
+import { EVENT_LIST, EVENT_DETAILS } from "@/lib/events";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 
@@ -12,6 +12,7 @@ type Student = {
   name: string;
   phone: string;
   event: string;
+  inGameId?: string;
 };
 
 export default function Home() {
@@ -57,8 +58,11 @@ export default function Home() {
     isEmailValid(schoolEmail) &&
     students.length > 0 &&
     students.every(
-      (s) =>
-        s.name.trim() !== "" && s.phone.trim() !== "" && s.event.trim() !== ""
+      (s) => {
+        const requiresId = EVENT_DETAILS[s.event]?.requiresInGameId;
+        return s.name.trim() !== "" && s.phone.trim() !== "" && s.event.trim() !== "" &&
+               (!requiresId || (s.inGameId && s.inGameId.trim() !== ""));
+      }
     );
 
   const addStudent = () => {
@@ -95,10 +99,11 @@ export default function Home() {
         body: JSON.stringify({
           schoolName,
           schoolEmail,
-          students: students.map(({ ...rest }) => ({
+          students: students.map(({ id, ...rest }) => ({
             name: rest.name,
             phone: rest.phone,
-            event: rest.event
+            event: rest.event,
+            inGameId: rest.inGameId || null,
           })),
         }),
       });
@@ -258,6 +263,23 @@ export default function Home() {
                           ))}
                         </select>
                       </div>
+                      {EVENT_DETAILS[student.event]?.requiresInGameId && (
+                        <div className="space-y-2 sm:col-span-3">
+                          <label className="text-sm font-medium text-foreground">
+                            In-Game ID ({EVENT_DETAILS[student.event].idFormat})
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={student.inGameId || ""}
+                            onChange={(e) =>
+                              updateStudent(student.id, "inGameId", e.target.value)
+                            }
+                            className="w-full px-4 py-3 rounded-2xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all placeholder:text-muted-foreground text-foreground"
+                            placeholder={`e.g., ${EVENT_DETAILS[student.event].idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : EVENT_DETAILS[student.event].idFormat === "Epic Games ID / Rocket ID" ? "YourEpicID" : "1234567890 (IGN)"}`}
+                          />
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}

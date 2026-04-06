@@ -2,7 +2,7 @@
 // Go to script.google.com, create a new project, and paste this code.
 // Deploy it as a Web App, allowing access to "Anyone".
 
-const SHEET_NAME = "Registrations";
+const SHEET_NAME = "Materials";
 
 function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -13,46 +13,40 @@ function getSheet() {
     sheet = ss.insertSheet(SHEET_NAME);
     // Setup headers
     sheet.appendRow([
-      "Timestamp",
-      "School Name",
-      "School Email",
-      "Student Name",
-      "Student Phone No.",
-      "Event",
-      "In-Game ID"
+      "Date",
+      "Drive",
+      "School",
+      "Event"
     ]);
     // Make headers bold
-    sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
+    sheet.getRange(1, 1, 1, 4).setFontWeight("bold");
     sheet.setFrozenRows(1);
   }
   return sheet;
 }
 
-// Handle POST requests (Form submissions)
+// Handle POST requests (Materials submissions)
 function doPost(e) {
   try {
     const sheet = getSheet();
 
     // Parse the incoming JSON body
     const body = JSON.parse(e.postData.contents);
-    const schoolName = body.schoolName;
-    const schoolEmail = body.schoolEmail;
-    const students = body.students;
+    const date = body.date;
+    const drive = body.drive;
+    const school = body.school;
+    const event = body.event;
 
-    // Process each student
-    const rows = students.map(student => [
+    // Create row data
+    const row = [
       new Date().toISOString(),
-      schoolName,
-      schoolEmail,
-      student.name,
-      student.phone,
-      student.event,
-      student.inGameId || ""
-    ]);
+      drive,
+      school,
+      event
+    ];
 
-    // Append all rows efficiently
-    const startRow = sheet.getLastRow() + 1;
-    sheet.getRange(startRow, 1, rows.length, rows[0].length).setValues(rows);
+    // Append row
+    sheet.appendRow(row);
 
     return ContentService.createTextOutput(JSON.stringify({ success: true }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -63,7 +57,7 @@ function doPost(e) {
   }
 }
 
-// Handle GET requests (Admin fetching data)
+// Handle GET requests (Admin fetching materials data)
 function doGet(e) {
   try {
     const sheet = getSheet();
@@ -84,13 +78,10 @@ function doGet(e) {
     for (let i = 1; i < values.length; i++) {
       const row = values[i];
       const obj = {
-        timestamp: row[0],
-        schoolName: row[1],
-        schoolEmail: row[2],
-        studentName: row[3],
-        studentPhone: row[4],
-        event: row[5],
-        inGameId: row[6] || null
+        date: row[0],
+        drive: row[1],
+        school: row[2],
+        event: row[3]
       };
       jsonData.push(obj);
     }
