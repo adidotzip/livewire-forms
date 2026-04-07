@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { LogOut, Search, RefreshCw, Filter, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
+import { LogOut, Search, RefreshCw, Filter, ShieldCheck, ChevronDown, ChevronUp, ExternalLink, Calendar, Building2, FolderOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { EVENT_LIST } from "@/lib/events";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 type RegistrationRecord = {
   timestamp: string;
@@ -20,10 +21,12 @@ type RegistrationRecord = {
 };
 
 type MaterialsRecord = {
-  date: string;
-  drive: string;
-  school: string;
+  submissionId: string;
+  respondentId: string;
+  submittedAt: string;
+  schoolName: string;
   event: string;
+  driveLink: string;
 };
 
 export default function AdminDashboard() {
@@ -140,6 +143,17 @@ export default function AdminDashboard() {
     return matchesSearch && matchesFilter;
   });
 
+  const filteredMaterialsData = materialsData.filter((item) => {
+    const matchesSearch =
+      (item.schoolName && item.schoolName.toLowerCase().includes(search.toLowerCase())) ||
+      (item.event && item.event.toLowerCase().includes(search.toLowerCase())) ||
+      (item.submissionId && item.submissionId.toLowerCase().includes(search.toLowerCase()));
+
+    const matchesFilter = filterEvent === "All" || item.event === filterEvent;
+
+    return matchesSearch && matchesFilter;
+  });
+
   // Sort Logic
   const sortedData = [...filteredData].sort((a, b) => {
     const valA = a[sortField]?.toString() || "";
@@ -212,13 +226,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Controls */}
-        {activeTab === "registrations" && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 bg-white p-6 rounded-3xl border border-neutral-200 shadow-sm">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 bg-white p-6 rounded-3xl border border-neutral-200 shadow-sm">
           <div className="lg:col-span-2 relative">
             <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
               type="text"
-              placeholder="Search schools, students, or events..."
+              placeholder={activeTab === "registrations" ? "Search schools, students, or events..." : "Search schools, IDs, or events..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-2xl bg-neutral-50 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:bg-white transition-all"
@@ -238,10 +251,9 @@ export default function AdminDashboard() {
             </select>
           </div>
           <div className="flex items-center justify-end px-4 text-sm font-medium text-neutral-500 bg-neutral-50 rounded-2xl border border-neutral-200">
-            Total Records: {filteredData.length}
+            Total Records: {activeTab === "registrations" ? filteredData.length : filteredMaterialsData.length}
           </div>
-          </div>
-        )}
+        </div>
 
         {/* Data Table */}
         {activeTab === "registrations" && (
@@ -338,71 +350,93 @@ export default function AdminDashboard() {
 
         {/* Materials Tab */}
         {activeTab === "materials" && (
-          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-neutral-500 uppercase bg-neutral-50/50 border-b border-neutral-200">
-                  <tr>
-                    <th className="px-6 py-4 font-medium tracking-wider">Date</th>
-                    <th className="px-6 py-4 font-medium tracking-wider">Drive Link</th>
-                    <th className="px-6 py-4 font-medium tracking-wider">School</th>
-                    <th className="px-6 py-4 font-medium tracking-wider">Event</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200">
-                  {materialsLoading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <tr key={`materials-skeleton-${i}`} className="animate-pulse bg-white">
-                        <td className="px-6 py-5">
-                          <div className="h-4 bg-neutral-200 rounded-full w-24"></div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="h-4 bg-neutral-200 rounded-full w-32"></div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="h-4 bg-neutral-200 rounded-full w-28"></div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="h-4 bg-neutral-200 rounded-full w-20"></div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : materialsData.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center text-neutral-500">
-                        No materials data found.
-                      </td>
-                    </tr>
-                  ) : (
-                    materialsData.map((record, index) => (
-                      <tr key={index} className="hover:bg-neutral-50/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-neutral-500">
-                          {new Date(record.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <a
-                            href={record.drive}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            View Drive
-                          </a>
-                        </td>
-                        <td className="px-6 py-4 font-medium text-neutral-900">
-                          {record.school}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-xs font-medium">
-                            {record.event}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="space-y-6">
+            {materialsLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={`materials-skeleton-${i}`} className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-sm animate-pulse space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div className="h-6 bg-neutral-200 rounded-full w-1/3"></div>
+                      <div className="h-6 bg-neutral-200 rounded-full w-1/4"></div>
+                    </div>
+                    <div className="h-4 bg-neutral-200 rounded-full w-1/2"></div>
+                    <div className="h-10 bg-neutral-200 rounded-xl w-full mt-4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredMaterialsData.length === 0 ? (
+              <div className="bg-white p-12 rounded-3xl border border-neutral-200 shadow-sm text-center">
+                <FolderOpen className="w-12 h-12 mx-auto text-neutral-300 mb-4" />
+                <h3 className="text-lg font-medium text-neutral-900">No materials found</h3>
+                <p className="text-neutral-500 mt-1">Try adjusting your filters or search query.</p>
+              </div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AnimatePresence>
+                  {filteredMaterialsData.map((record) => (
+                    <motion.div
+                      key={record.submissionId}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-sm hover:shadow-md transition-all group flex flex-col h-full"
+                    >
+                      <div className="flex justify-between items-start mb-4 gap-2">
+                        <div className="flex items-center gap-2 text-sm text-neutral-500 font-medium bg-neutral-50 px-3 py-1 rounded-full w-fit">
+                          <span className="w-2 h-2 rounded-full bg-neutral-400"></span>
+                          {record.event}
+                        </div>
+                        <span className="text-xs text-neutral-400 font-mono bg-neutral-50 px-2 py-1 rounded-md">
+                          #{record.submissionId?.slice(0, 7) || 'N/A'}
+                        </span>
+                      </div>
+                      
+                      <div className="mb-4 flex-grow">
+                        <div className="flex items-start gap-3">
+                          <Building2 className="w-5 h-5 text-neutral-400 mt-0.5 shrink-0" />
+                          <h3 className="text-lg font-semibold text-neutral-900 line-clamp-2 leading-tight">
+                            {record.schoolName || "Unknown School"}
+                          </h3>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mt-3 text-sm text-neutral-500">
+                          <Calendar className="w-4 h-4" />
+                          <time dateTime={record.submittedAt}>
+                            {record.submittedAt ? new Date(record.submittedAt).toLocaleDateString(undefined, { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : "Unknown Date"}
+                          </time>
+                        </div>
+                      </div>
+
+                      <div className="mt-auto pt-4 border-t border-neutral-100">
+                        <a
+                          href={record.driveLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-sm font-medium transition-colors"
+                        >
+                          <FolderOpen className="w-4 h-4" />
+                          Open Drive Link
+                          <ExternalLink className="w-3.5 h-3.5 ml-1 opacity-70" />
+                        </a>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
           </div>
         )}
       </div>
