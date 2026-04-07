@@ -430,7 +430,7 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-background text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
       
-      <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-60" />
+      <div className="fixed inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-60" />
       
       <AnimatePresence>
         {saveState !== "idle" && (
@@ -659,7 +659,7 @@ export default function Home() {
                           )}
                         >
                           {isComplete ? <Check className={cn("w-4 h-4", activeMemberIndex === idx ? "text-primary-foreground" : "text-green-500")} /> : <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" />}
-                          Player {idx + 1}
+                          Participant {idx + 1}
                         </button>
                       )
                     })}
