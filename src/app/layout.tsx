@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Sans, DM_Serif_Display } from "next/font/google";
+import { Plus_Jakarta_Sans, Lora, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const dmSans = DM_Sans({ 
+const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-// DM Serif Display is not a variable font, so we must specify the weight
-const dmSerif = DM_Serif_Display({ 
-  weight: "400",
+const fontSerif = Lora({
   subsets: ["latin"],
   variable: "--font-serif",
+});
+
+const fontMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${dmSans.variable} ${dmSerif.variable} font-sans antialiased`}>
+      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} font-sans antialiased`}>
         {children}
         <Toaster position="bottom-right" />
       </body>
