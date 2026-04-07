@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({ 
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+// DM Serif Display is not a variable font, so we must specify the weight
+const dmSerif = DM_Serif_Display({ 
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
 
 export const metadata: Metadata = {
   title: "School Event Registration",
@@ -17,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${dmSans.variable} ${dmSerif.variable} font-sans antialiased`}>
         {children}
         <Toaster position="bottom-right" />
       </body>
