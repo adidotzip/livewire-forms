@@ -430,7 +430,7 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-background text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
       
-      <div className="fixed inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-60" />
+      <div className="fixed inset-0 bg-primary/10 pointer-events-none blur-3xl opacity-60 z-0" />
       
       <AnimatePresence>
         {saveState !== "idle" && (
@@ -457,7 +457,7 @@ export default function Home() {
             className="relative inline-block"
           >
             <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full scale-[2] animate-pulse" />
-            <Link href="/events" className="relative block group">
+            <Link href="https://thelivewire.club/events" className="relative block group">
               <img 
                 src="https://framerusercontent.com/images/GuPYr7ZLGnklkwJ5MitUN7nvgcA.png" 
                 alt="Event Logo" 
@@ -495,7 +495,7 @@ export default function Home() {
                   <input
                     type="text" required value={schoolName} onChange={(e) => setSchoolName(e.target.value)}
                     className="w-full px-5 py-4 rounded-2xl bg-input border border-border focus:outline-none focus:border-primary/50 focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground"
-                    placeholder="e.g. Springfield High"
+                    placeholder="e.g. BGS International School"
                   />
                 </div>
                 <div className="space-y-3 group/input">
@@ -733,7 +733,7 @@ export default function Home() {
                             </div>
                             <div className="space-y-3 group/input">
                               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 flex justify-between">
-                                Class & Section {showErrors && !isClassValid && <span className="text-destructive">Required</span>}
+                                Class {showErrors && !isClassValid && <span className="text-destructive">Required</span>}
                               </label>
                               <input
                                 type="text" value={member.class} onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
@@ -741,7 +741,7 @@ export default function Home() {
                                   "w-full px-5 py-4 rounded-2xl bg-input border focus:outline-none focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground",
                                   showErrors && !isClassValid ? "border-destructive" : "border-border focus:border-primary/50"
                                 )}
-                                placeholder="e.g. 10-A"
+                                placeholder="e.g. 10"
                               />
                             </div>
                             <div className="space-y-3 group/input">
