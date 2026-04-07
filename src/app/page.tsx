@@ -33,7 +33,9 @@ type Team = {
 
 type SaveState = "idle" | "saving" | "saved";
 
-const containerVariants = {
+import { Variants } from "framer-motion";
+
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -41,7 +43,7 @@ const containerVariants = {
   }
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 30 } }
 };
@@ -468,7 +470,7 @@ export default function Home() {
               Registration
             </h1>
             <p className="text-zinc-400 text-lg max-w-xl mx-auto font-light leading-relaxed">
-              Secure your spot for the upcoming events. Let's start with your school details.
+              Secure your spot for the upcoming events. Let&apos;s start with your school details.
             </p>
           </div>
         </div>
