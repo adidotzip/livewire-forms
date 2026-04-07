@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, KeyboardEvent } from "react";
-import { Send, Users, X, CheckCircle, PlusCircle, Trash2, Copy, AlertCircle, Cloud, Check, ArrowRight, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import { Send, Users, X, CheckCircle, PlusCircle, Trash2, Copy, AlertCircle, Cloud, Check, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT_LIST, EVENT_DETAILS } from "@/lib/events";
 import { cn } from "@/lib/utils";
@@ -33,18 +33,17 @@ type Team = {
 
 type SaveState = "idle" | "saving" | "saved";
 
-// Animation Variants for staggering cards
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
+    transition: { staggerChildren: 0.05 }
   }
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 30 } }
 };
 
 export default function Home() {
@@ -283,7 +282,6 @@ export default function Home() {
   const formError = getFormError();
   const isFormValid = formError === null;
   const totalParticipants = teams.reduce((acc, team) => acc + team.members.length, 0);
-  const incompleteTeamsCount = teams.filter(t => !getTeamProgress(t).isComplete).length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,15 +326,15 @@ export default function Home() {
 
   const renderEventGrid = (events: string[], title: string) => (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 pl-2">
-        <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">{title}</h3>
-        <div className="h-[1px] flex-1 bg-gradient-to-r from-border/50 to-transparent"></div>
+      <div className="flex items-center gap-4 pl-1">
+        <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-widest">{title}</h3>
+        <div className="h-[1px] flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
       </div>
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
       >
         {events.map((event) => {
           const eventDetails = getEventDetails(event);
@@ -351,72 +349,71 @@ export default function Home() {
               type="button"
               onClick={() => existingTeam ? editTeam(existingTeam) : createTeamForEvent(event)}
               className={cn(
-                "p-6 rounded-3xl transition-all duration-300 text-left relative overflow-hidden group flex flex-col justify-between h-full min-h-[160px] backdrop-blur-sm",
+                "p-6 rounded-[2rem] transition-all duration-300 text-left relative overflow-hidden group flex flex-col justify-between min-h-[170px]",
                 isSelected && progress?.isComplete
-                  ? "bg-green-500/10 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)] ring-1 ring-green-500/20"
+                  ? "bg-green-500/10 border border-green-500/30 shadow-[0_4px_30px_rgba(34,197,94,0.08)]"
                   : isSelected && progress?.status === "in-progress"
-                  ? "bg-orange-500/10 border border-orange-500/30 shadow-[0_0_30px_rgba(249,115,22,0.1)] ring-1 ring-orange-500/20"
-                  : "bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.06]"
+                  ? "bg-orange-500/10 border border-orange-500/30 shadow-[0_4px_30px_rgba(249,115,22,0.08)]"
+                  : "bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
               )}
-              whileHover={{ y: -4 }}
+              whileHover={{ y: -4, scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              {/* Abstract Glass Flare */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {eventDetails?.icon && (
-                 <div className="absolute -right-4 -bottom-4 text-[120px] opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6 group-hover:opacity-[0.06]">
+                 <div className="absolute -right-4 -bottom-6 text-[130px] opacity-[0.02] pointer-events-none transition-transform duration-700 group-hover:scale-105 group-hover:-rotate-3 group-hover:opacity-[0.04]">
                    {eventDetails.icon}
                  </div>
               )}
 
               <div className="flex items-start justify-between mb-4 w-full relative z-10">
                 <div className="pr-3">
-                  <h3 className="font-serif text-xl font-semibold tracking-tight text-white group-hover:text-primary transition-colors">{event}</h3>
+                  <h3 className="font-serif text-xl font-medium tracking-tight text-white group-hover:text-primary transition-colors">{event}</h3>
                   {eventDetails?.category && (
-                    <span className="inline-block mt-2 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase font-bold text-zinc-400 tracking-wider">
+                    <span className="inline-block mt-2 px-2.5 py-1 rounded-md bg-white/5 text-[10px] uppercase font-semibold text-zinc-500 tracking-wider">
                       {eventDetails.category}
                     </span>
                   )}
                 </div>
                 {isSelected && progress?.isComplete && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <CheckCircle className="w-6 h-6 text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] flex-shrink-0" />
+                    <CheckCircle className="w-6 h-6 text-green-400 drop-shadow-md flex-shrink-0" />
                   </motion.div>
                 )}
                 {isSelected && progress?.status === "in-progress" && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <AlertCircle className="w-6 h-6 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.5)] flex-shrink-0" />
+                    <AlertCircle className="w-6 h-6 text-orange-400 drop-shadow-md flex-shrink-0" />
                   </motion.div>
                 )}
               </div>
 
               {eventDetails?.description && !isSelected && (
-                <p className="text-sm text-zinc-500 mt-2 mb-4 line-clamp-2 relative z-10 leading-relaxed font-light">
+                <p className="text-sm text-zinc-500 mt-2 mb-4 line-clamp-2 relative z-10 leading-relaxed">
                   {eventDetails.description}
                 </p>
               )}
 
               <div className="mt-auto pt-4 space-y-3 w-full relative z-10">
                 {isSelected && progress ? (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold tabular-nums uppercase tracking-wide">
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between text-[11px] font-semibold tabular-nums uppercase tracking-wider">
                       <span className={progress.isComplete ? "text-green-400" : "text-orange-400"}>
                         {progress.isComplete ? "Registered" : "In Progress"}
                       </span>
-                      <span className="text-zinc-400">{progress.validCount} / {progress.targetSize}</span>
+                      <span className="text-zinc-500">{progress.validCount} / {progress.targetSize}</span>
                     </div>
-                    <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden inset-shadow-sm">
+                    <div className="h-1 w-full bg-black/50 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(progress.validCount / progress.targetSize) * 100}%` }}
-                        className={cn("h-full rounded-full shadow-[0_0_10px_currentColor]", progress.isComplete ? "bg-green-400" : "bg-orange-400")}
+                        className={cn("h-full rounded-full", progress.isComplete ? "bg-green-400" : "bg-orange-400")}
                       />
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs font-medium text-zinc-400 bg-black/20 w-fit px-3 py-1.5 rounded-full border border-white/5">
-                    <Users className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                    <Users className="w-4 h-4 opacity-70" />
                     <span>{eventDetails?.teamSize ? `${eventDetails.teamSize} Participants` : "Flexible Team Size"}</span>
                   </div>
                 )}
@@ -429,84 +426,81 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-[#0a0a0a] to-black text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
+    <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900/40 via-[#0a0a0a] to-black text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
       
-      {/* Dynamic Background Glows */}
-      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-primary/10 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-50" />
+      <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-60" />
       
-      {/* Autosave Indicator */}
       <AnimatePresence>
         {saveState !== "idle" && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            className="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl text-sm font-medium"
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-sm font-medium"
           >
             {saveState === "saving" ? (
-              <><Cloud className="w-4 h-4 animate-pulse text-zinc-400" /> <span className="text-zinc-300">Saving...</span></>
+              <><Cloud className="w-4 h-4 animate-pulse text-zinc-500" /> <span className="text-zinc-400">Saving securely...</span></>
             ) : saveState === "saved" ? (
-              <><Check className="w-4 h-4 text-green-400" /> <span className="text-zinc-300">Saved</span></>
+              <><Check className="w-4 h-4 text-green-400" /> <span className="text-zinc-400">Changes saved</span></>
             ) : null}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto space-y-16 relative z-10">
+      <div className="max-w-5xl mx-auto space-y-20 relative z-10">
         
-        {/* Header Section */}
-        <div className="text-center space-y-8 mt-4">
+        <div className="text-center space-y-10 mt-8">
           <motion.div
             initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             className="relative inline-block"
           >
-            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 animate-pulse" />
+            <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full scale-[2] animate-pulse" />
             <Link href="/events" className="relative block group">
               <img 
                 src="https://framerusercontent.com/images/GuPYr7ZLGnklkwJ5MitUN7nvgcA.png" 
                 alt="Event Logo" 
-                className="w-24 h-24 object-cover rounded-[2rem] mx-auto shadow-2xl group-hover:scale-105 group-hover:rotate-3 transition-all duration-500 ring-1 ring-white/10"
+                className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-3xl mx-auto shadow-2xl group-hover:scale-105 transition-all duration-500 ring-1 ring-white/5 bg-zinc-900/50 p-1"
               />
             </Link>
           </motion.div>
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/40 drop-shadow-sm pb-2">
+          <div className="space-y-5">
+            <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-500 pb-2">
               Registration
             </h1>
-            <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-              Secure your spot for the upcoming events. Fill in your school details to get started.
+            <p className="text-zinc-400 text-lg max-w-xl mx-auto font-light leading-relaxed">
+              Secure your spot for the upcoming events. Let's start with your school details.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-16">
+        <form onSubmit={handleSubmit} className="space-y-20">
           
-          {/* School Info Card */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-[2.5rem] -m-[1px] p-[1px] opacity-50 group-hover:opacity-100 transition-opacity">
-              <div className="absolute inset-0 bg-zinc-950/90 rounded-[2.5rem]" />
-            </div>
-            <div className="relative bg-zinc-950/50 backdrop-blur-2xl p-8 sm:p-10 rounded-[2.5rem] shadow-2xl border border-white/5">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-serif font-semibold flex items-center gap-3">
-                  <Sparkles className="w-6 h-6 text-primary" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-[2.5rem] opacity-50 group-focus-within:opacity-100 transition-opacity duration-700" />
+            <div className="relative bg-zinc-950/60 backdrop-blur-2xl p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border border-white/5">
+              <div className="flex items-center mb-10 gap-3">
+                <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-serif font-medium text-white">
                   School Details
                 </h2>
               </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-2.5">
-                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest pl-1">School Name</label>
+              
+              <div className="grid gap-8 sm:grid-cols-2">
+                <div className="space-y-3 group/input">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Name</label>
                   <input
                     type="text" required value={schoolName} onChange={(e) => setSchoolName(e.target.value)}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-base text-white placeholder:text-zinc-600 shadow-inner"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/5 focus:outline-none focus:border-primary/50 focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700"
                     placeholder="e.g. Springfield High"
                   />
                 </div>
-                <div className="space-y-2.5">
-                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest pl-1">School Email</label>
+                <div className="space-y-3 group/input">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Email</label>
                   <input
                     type="email" required value={schoolEmail} onChange={(e) => setSchoolEmail(e.target.value)}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-base text-white placeholder:text-zinc-600 shadow-inner"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/5 focus:outline-none focus:border-primary/50 focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700"
                     placeholder="school@example.com"
                   />
                 </div>
@@ -514,54 +508,54 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Events Section */}
-          <div className="space-y-10">
+          <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pl-2">
-              <div className="space-y-1">
-                <h2 className="text-3xl font-serif font-semibold text-white tracking-tight">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-serif font-medium text-white tracking-tight">
                   Choose Events
                 </h2>
-                <p className="text-sm text-zinc-500">Select the events you wish to participate in below.</p>
+                <p className="text-base text-zinc-500 font-light">Select and build your teams for the events below.</p>
               </div>
             </div>
             
             {teams.length === 0 && (
               <motion.div 
-                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                className="inline-flex items-center gap-3 text-primary bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-3 text-primary bg-primary/5 px-5 py-3 rounded-2xl border border-primary/20"
               >
-                <div className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                </div>
-                <span className="text-sm font-semibold">Start your selection</span>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                </span>
+                <span className="text-sm font-medium">Select an event to begin</span>
               </motion.div>
             )}
 
-            {renderEventGrid(teamEvents, "Team Events")}
-            {renderEventGrid(individualEvents, "Individual Events")}
+            <div className="space-y-16">
+              {renderEventGrid(teamEvents, "Team Events")}
+              {renderEventGrid(individualEvents, "Individual Events")}
+            </div>
           </div>
 
-          {/* Floating Glass Footer */}
           <AnimatePresence>
             {teams.length > 0 && (
               <motion.div 
                 initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-                className="fixed bottom-6 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-32px)] sm:max-w-2xl bg-zinc-900/80 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50 rounded-[2.5rem] p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between z-40 gap-4"
+                className="fixed bottom-8 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-32px)] sm:max-w-3xl bg-zinc-950/90 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] rounded-full p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between z-40 gap-4"
               >
-                <div className="flex-1 flex flex-col justify-center px-4">
-                  <div className="flex items-center gap-3 text-sm font-semibold text-zinc-300">
+                <div className="flex-1 flex flex-col justify-center px-6">
+                  <div className="flex items-center gap-3 text-sm font-medium text-white">
                     <span>{teams.length} {teams.length === 1 ? 'Event' : 'Events'}</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
-                    <span>{totalParticipants} {totalParticipants === 1 ? 'Student' : 'Students'}</span>
+                    <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                    <span className="text-zinc-400">{totalParticipants} {totalParticipants === 1 ? 'Student' : 'Students'}</span>
                   </div>
                   {!isFormValid ? (
-                    <p className="text-orange-400 text-xs font-medium mt-1 flex items-center gap-1.5">
+                    <p className="text-orange-400/80 text-xs mt-1.5 flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5" /> {formError}
                     </p>
                   ) : (
-                    <p className="text-green-400 text-xs font-medium mt-1 flex items-center gap-1.5">
-                      <CheckCircle className="w-3.5 h-3.5" /> Ready to submit
+                    <p className="text-green-400/80 text-xs mt-1.5 flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5" /> All requirements met
                     </p>
                   )}
                 </div>
@@ -570,16 +564,16 @@ export default function Home() {
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
                   className={cn(
-                    "w-full sm:w-auto px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2.5 transition-all duration-300 shadow-xl",
+                    "w-full sm:w-auto px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-3 transition-all duration-300",
                     isFormValid && !isSubmitting
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 shadow-primary/25"
-                      : "bg-white/5 text-zinc-500 cursor-not-allowed border border-white/5"
+                      ? "bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                      : "bg-white/5 text-zinc-600 cursor-not-allowed border border-white/5"
                   )}
                 >
                   {isSubmitting ? (
                     <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4" />
                   )}
                   {isSubmitting ? "Finalizing..." : "Submit Registration"}
                 </button>
@@ -588,70 +582,65 @@ export default function Home() {
           </AnimatePresence>
         </form>
 
-        {/* Modal Overlay */}
         <AnimatePresence>
           {showTeamModal && currentTeam && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6"
               onClick={() => setShowTeamModal(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-zinc-950 border border-white/10 rounded-[2.5rem] shadow-2xl shadow-black max-w-2xl w-full h-[90vh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col relative"
+                transition={{ type: "spring", damping: 30, stiffness: 350 }}
+                className="bg-[#0f0f0f] border border-white/10 rounded-[2rem] shadow-2xl max-w-3xl w-full h-[90vh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col relative"
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleKeyDown}
               >
                 {/* Modal Header */}
-                <div className="p-6 sm:p-8 border-b border-white/5 bg-white/[0.02] flex items-start justify-between relative z-10">
-                  <div className="w-full pr-4 space-y-4">
-                    <h2 className="text-3xl font-serif font-bold text-white tracking-tight">{currentTeam.event}</h2>
-                    <div className="w-full max-w-md bg-black/50 p-3 rounded-2xl border border-white/5">
-                       <div className="flex justify-between text-[11px] font-bold tracking-wider uppercase mb-2 text-zinc-400">
-                         <span>Setup Progress</span>
-                         <span className={getTeamProgress(currentTeam).isComplete ? "text-green-400" : ""}>
-                           {getTeamProgress(currentTeam).validCount} / {getTeamProgress(currentTeam).targetSize} Valid
-                         </span>
-                       </div>
-                       <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="px-8 py-6 border-b border-white/5 bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+                  <div className="w-full space-y-3">
+                    <h2 className="text-2xl font-serif font-medium text-white">{currentTeam.event}</h2>
+                    <div className="flex items-center gap-4 text-sm font-medium">
+                       <span className={getTeamProgress(currentTeam).isComplete ? "text-green-400" : "text-zinc-400"}>
+                         {getTeamProgress(currentTeam).validCount} of {getTeamProgress(currentTeam).targetSize} Ready
+                       </span>
+                       <div className="h-1 flex-1 max-w-[120px] bg-white/5 rounded-full overflow-hidden">
                          <motion.div 
-                           className={cn("h-full rounded-full shadow-[0_0_10px_currentColor]", getTeamProgress(currentTeam).isComplete ? "bg-green-400" : "bg-primary")}
+                           className={cn("h-full rounded-full", getTeamProgress(currentTeam).isComplete ? "bg-green-400" : "bg-primary")}
                            animate={{ width: `${(getTeamProgress(currentTeam).validCount / getTeamProgress(currentTeam).targetSize) * 100}%` }}
                          />
                        </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
                     {confirmDeleteId === currentTeam.id ? (
-                      <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-full border border-red-500/20 backdrop-blur-sm">
-                        <span className="text-xs font-bold text-red-400 whitespace-nowrap">Sure?</span>
-                        <button onClick={() => removeTeam(currentTeam.id)} className="text-white hover:text-red-300 font-bold text-xs">Yes</button>
-                        <button onClick={() => setConfirmDeleteId(null)} className="text-zinc-400 hover:text-white text-xs">No</button>
+                      <div className="flex items-center gap-3 bg-red-500/10 px-4 py-2.5 rounded-2xl border border-red-500/20">
+                        <span className="text-xs font-semibold text-red-400">Delete team?</span>
+                        <button onClick={() => removeTeam(currentTeam.id)} className="text-white hover:text-red-300 font-bold text-xs px-2">Yes</button>
+                        <button onClick={() => setConfirmDeleteId(null)} className="text-zinc-500 hover:text-white text-xs px-2">No</button>
                       </div>
                     ) : (
                       <button 
                         onClick={() => setConfirmDeleteId(currentTeam.id)} 
-                        className="p-3 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all"
-                        title="Delete Team"
+                        className="p-3 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
                     )}
                     <button 
                       onClick={() => setShowTeamModal(false)} 
-                      className="p-3 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-full transition-all hover:rotate-90"
+                      className="p-3 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-xl transition-all"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Stepper Navigation */}
+                {/* Stepper */}
                 {currentTeam.members.length > 1 && (
-                  <div className="flex items-center gap-3 overflow-x-auto px-6 sm:px-8 py-4 border-b border-white/5 bg-black/20 scrollbar-hide">
+                  <div className="flex items-center gap-3 overflow-x-auto px-8 py-5 border-b border-white/5 bg-zinc-950/50 scrollbar-hide">
                     {currentTeam.members.map((_, idx) => {
                       const m = currentTeam.members[idx];
                       const evDetail = getEventDetails(currentTeam.event);
@@ -661,13 +650,13 @@ export default function Home() {
                           key={m.id}
                           onClick={() => setActiveMemberIndex(idx)}
                           className={cn(
-                            "flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap gap-2.5 border",
+                            "flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap gap-3 border",
                             activeMemberIndex === idx 
-                              ? "bg-primary text-primary-foreground border-primary/50 shadow-lg shadow-primary/20" 
-                              : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10 hover:text-white"
+                              ? "bg-white text-black border-transparent" 
+                              : "bg-transparent text-zinc-500 border-white/5 hover:bg-white/5 hover:text-zinc-300"
                           )}
                         >
-                          {isComplete ? <Check className={cn("w-4 h-4", activeMemberIndex === idx ? "text-primary-foreground" : "text-green-400")} /> : <span className="w-2 h-2 rounded-full bg-current opacity-30" />}
+                          {isComplete ? <Check className={cn("w-4 h-4", activeMemberIndex === idx ? "text-black" : "text-green-500")} /> : <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" />}
                           Player {idx + 1}
                         </button>
                       )
@@ -676,7 +665,7 @@ export default function Home() {
                 )}
 
                 {/* Modal Body */}
-                <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6 bg-zinc-950 relative">
+                <div className="p-8 overflow-y-auto flex-1 bg-zinc-950/20 relative">
                   <AnimatePresence mode="wait">
                     {currentTeam.members[activeMemberIndex] && (() => {
                       const member = currentTeam.members[activeMemberIndex];
@@ -689,35 +678,35 @@ export default function Home() {
                       return (
                         <motion.div
                           key={member.id}
-                          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                          className="space-y-6"
+                          initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                          className="space-y-8"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <h3 className="font-serif font-semibold text-2xl text-white">
-                              Details
+                            <h3 className="font-serif font-medium text-xl text-white">
+                              Participant Details
                             </h3>
-                            <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <div className="flex items-center gap-2">
                               {activeMemberIndex < currentTeam.members.length - 1 && (
-                                <div className="flex items-center bg-white/5 border border-white/10 rounded-xl overflow-hidden p-1">
+                                <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/5">
                                   <button
                                     type="button" onClick={() => duplicateToNext(activeMemberIndex, "class")}
-                                    className="text-xs font-semibold flex items-center gap-1.5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-3 py-2 rounded-lg"
+                                    className="text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-4 py-2.5 rounded-lg"
                                   >
                                     Copy Class
                                   </button>
                                   <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
                                   <button
                                     type="button" onClick={() => duplicateToNext(activeMemberIndex, "all")}
-                                    className="text-xs font-semibold flex items-center gap-1.5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-3 py-2 rounded-lg"
+                                    className="text-xs font-medium flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-4 py-2.5 rounded-lg"
                                   >
-                                    <Copy className="w-3.5 h-3.5" /> All to Next
+                                    <Copy className="w-3 h-3" /> All to Next
                                   </button>
                                 </div>
                               )}
                               {!eventDetails?.teamSize && currentTeam.members.length > 1 && (
                                 <button
                                   type="button" onClick={() => removeTeamMember(member.id)}
-                                  className="text-red-400 bg-red-400/10 hover:bg-red-400/20 border border-red-400/20 p-2.5 rounded-xl transition-all ml-2"
+                                  className="text-red-400 bg-red-400/10 hover:bg-red-400/20 p-3 rounded-xl transition-all ml-2"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -725,36 +714,36 @@ export default function Home() {
                             </div>
                           </div>
 
-                          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2">
-                            <div className="space-y-2 sm:col-span-2">
-                              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest pl-1 flex justify-between">
+                          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+                            <div className="space-y-3 sm:col-span-2 group/input">
+                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
                                 Full Name {showErrors && !isNameValid && <span className="text-red-400">Required</span>}
                               </label>
                               <input
                                 type="text" value={member.name} onChange={(e) => updateTeamMember(member.id, "name", e.target.value)}
                                 autoComplete="name"
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:ring-2 transition-all font-medium text-base text-white placeholder:text-zinc-600",
-                                  showErrors && !isNameValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50 focus:border-primary/50"
+                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
+                                  showErrors && !isNameValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
                                 )}
-                                placeholder="Student's name"
+                                placeholder="Student's full name"
                               />
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest pl-1 flex justify-between">
-                                Class / Section {showErrors && !isClassValid && <span className="text-red-400">Required</span>}
+                            <div className="space-y-3 group/input">
+                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
+                                Class & Section {showErrors && !isClassValid && <span className="text-red-400">Required</span>}
                               </label>
                               <input
                                 type="text" value={member.class} onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:ring-2 transition-all font-medium text-base text-white placeholder:text-zinc-600",
-                                  showErrors && !isClassValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50 focus:border-primary/50"
+                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
+                                  showErrors && !isClassValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
                                 )}
                                 placeholder="e.g. 10-A"
                               />
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest pl-1 flex justify-between">
+                            <div className="space-y-3 group/input">
+                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
                                 Contact Number 
                                 {showErrors && (!isPhoneCheckValid && member.phone) && <span className="text-red-400">Invalid</span>}
                                 {showErrors && !member.phone && <span className="text-red-400">Required</span>}
@@ -763,24 +752,24 @@ export default function Home() {
                                 type="tel" inputMode="numeric" autoComplete="tel"
                                 value={member.phone} onChange={(e) => updateTeamMember(member.id, "phone", e.target.value)}
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:ring-2 transition-all font-medium text-base text-white placeholder:text-zinc-600",
-                                  showErrors && !isPhoneCheckValid ? "border-red-500/50 focus:ring-red-500/50" : "border-white/10 focus:ring-primary/50 focus:border-primary/50"
+                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
+                                  showErrors && !isPhoneCheckValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
                                 )}
                                 placeholder="Mobile number"
                               />
                             </div>
                             
                             {eventDetails?.requiresInGameId && (
-                              <div className="space-y-2 sm:col-span-2">
-                                <label className="text-[11px] font-bold text-orange-400 uppercase tracking-widest pl-1 flex justify-between">
-                                  <span>In-Game ID <span className="text-orange-400/50 normal-case tracking-normal ml-1">({eventDetails.idFormat})</span></span>
+                              <div className="space-y-3 sm:col-span-2 group/input">
+                                <label className="text-xs font-semibold text-orange-400/80 uppercase tracking-widest pl-1 flex justify-between">
+                                  <span>In-Game ID <span className="text-orange-400/40 normal-case tracking-normal ml-1">({eventDetails.idFormat})</span></span>
                                   {showErrors && !isIdValid && <span className="text-red-400">Required</span>}
                                 </label>
                                 <input
                                   type="text" value={member.inGameId || ""} onChange={(e) => updateTeamMember(member.id, "inGameId", e.target.value)}
                                   className={cn(
-                                    "w-full px-5 py-4 rounded-2xl bg-orange-500/5 border focus:outline-none focus:ring-2 transition-all font-medium text-base text-white placeholder:text-orange-500/30",
-                                    showErrors && !isIdValid ? "border-red-500/50 focus:ring-red-500/50" : "border-orange-500/20 focus:ring-orange-500/50"
+                                    "w-full px-5 py-4 rounded-2xl bg-orange-500/5 border focus:outline-none focus:bg-orange-500/10 transition-all text-base text-white placeholder:text-orange-500/30",
+                                    showErrors && !isIdValid ? "border-red-500/50" : "border-orange-500/20 focus:border-orange-500/50"
                                   )}
                                   placeholder={`e.g., ${eventDetails.idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : "1234567890"}`}
                                 />
@@ -793,10 +782,10 @@ export default function Home() {
                   </AnimatePresence>
 
                   {!getEventDetails(currentTeam.event)?.teamSize && activeMemberIndex === currentTeam.members.length - 1 && (
-                    <motion.div layout className="flex justify-center pt-4">
+                    <motion.div layout className="flex justify-start pt-8">
                       <button
                         type="button" onClick={addTeamMember}
-                        className="px-6 py-4 bg-white/5 text-white font-bold rounded-2xl hover:bg-white/10 transition-all flex items-center gap-2 border border-white/10 w-full justify-center sm:w-auto"
+                        className="px-6 py-4 bg-white/5 text-zinc-300 font-medium rounded-2xl hover:bg-white/10 hover:text-white transition-all flex items-center gap-3 border border-white/5 w-full justify-center sm:w-auto"
                       >
                         <PlusCircle className="w-5 h-5" /> Add Another Participant
                       </button>
@@ -805,23 +794,23 @@ export default function Home() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-6 border-t border-white/5 bg-white/[0.02] flex flex-col sm:flex-row justify-between gap-4 relative z-10">
+                <div className="px-8 py-6 border-t border-white/5 bg-zinc-900/30 flex flex-col sm:flex-row justify-between gap-4 relative z-10">
                    <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3 order-2 sm:order-1">
                      {currentTeam.members.length > 1 && (
                        <>
                          <button
                            onClick={() => setActiveMemberIndex(Math.max(0, activeMemberIndex - 1))}
                            disabled={activeMemberIndex === 0}
-                           className="p-3.5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                           className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
                          >
-                           <ChevronLeft className="w-5 h-5" />
+                           <ChevronLeft className="w-5 h-5 text-white" />
                          </button>
                          <button
                            onClick={() => setActiveMemberIndex(Math.min(currentTeam.members.length - 1, activeMemberIndex + 1))}
                            disabled={activeMemberIndex === currentTeam.members.length - 1}
-                           className="p-3.5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                           className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
                          >
-                           <ChevronRight className="w-5 h-5" />
+                           <ChevronRight className="w-5 h-5 text-white" />
                          </button>
                        </>
                      )}
@@ -830,21 +819,21 @@ export default function Home() {
                   <div className="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
                     <button
                       onClick={() => setShowTeamModal(false)}
-                      className="flex-1 sm:flex-none px-6 py-4 text-zinc-400 font-semibold hover:text-white hover:bg-white/5 rounded-2xl transition-all"
+                      className="flex-1 sm:flex-none px-6 py-4 text-zinc-500 font-medium hover:text-zinc-300 rounded-2xl transition-all"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={saveTeam}
                       className={cn(
-                        "flex-1 sm:flex-none px-8 py-4 font-bold rounded-2xl transition-all flex justify-center items-center gap-2 shadow-xl",
+                        "flex-1 sm:flex-none px-8 py-4 font-semibold rounded-2xl transition-all flex justify-center items-center gap-2",
                         getTeamProgress(currentTeam).isComplete 
-                          ? "bg-green-500 hover:bg-green-400 text-black shadow-green-500/20" 
-                          : "bg-white text-black hover:bg-zinc-200 shadow-white/20"
+                          ? "bg-green-500 hover:bg-green-400 text-black shadow-[0_0_15px_rgba(34,197,94,0.2)]" 
+                          : "bg-white text-black hover:bg-zinc-200"
                       )}
                     >
                       {getTeamProgress(currentTeam).isComplete ? (
-                        <><CheckCircle className="w-5 h-5" /> Save Changes</>
+                        <><CheckCircle className="w-4 h-4" /> Save Team</>
                       ) : (
                         "Save Draft"
                       )}
