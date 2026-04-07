@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 
 // Define the shape to fix the 'any' build error
 interface EventDetail {
-  teamSize?: number;
+  teamSize?: number | null;
   requiresInGameId?: boolean;
   idFormat?: string;
   icon?: string | React.ReactNode;
