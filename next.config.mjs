@@ -12,13 +12,12 @@ const nextConfig = {
     ],
   },
   
-  // 2. (Optional) If you want to deploy IMMEDIATELY without 
-  // deleting those unused variables, uncomment the lines below.
-  /*
+
+
   eslint: {
     ignoreDuringBuilds: true,
   },
-  */
+
 };
 
 export default nextConfig;
