@@ -329,8 +329,8 @@ export default function Home() {
   const renderEventGrid = (events: string[], title: string) => (
     <div className="space-y-6">
       <div className="flex items-center gap-4 pl-1">
-        <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-widest">{title}</h3>
-        <div className="h-[1px] flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">{title}</h3>
+        <div className="h-[1px] flex-1 bg-gradient-to-r from-border to-transparent"></div>
       </div>
       <motion.div 
         variants={containerVariants}
@@ -356,12 +356,12 @@ export default function Home() {
                   ? "bg-green-500/10 border border-green-500/30 shadow-[0_4px_30px_rgba(34,197,94,0.08)]"
                   : isSelected && progress?.status === "in-progress"
                   ? "bg-orange-500/10 border border-orange-500/30 shadow-[0_4px_30px_rgba(249,115,22,0.08)]"
-                  : "bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+                  : "bg-card border border-border hover:border-primary/50 shadow-sm"
               )}
               whileHover={{ y: -4, scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {eventDetails?.icon && (
                  <div className="absolute -right-4 -bottom-6 text-[130px] opacity-[0.02] pointer-events-none transition-transform duration-700 group-hover:scale-105 group-hover:-rotate-3 group-hover:opacity-[0.04]">
@@ -371,27 +371,27 @@ export default function Home() {
 
               <div className="flex items-start justify-between mb-4 w-full relative z-10">
                 <div className="pr-3">
-                  <h3 className="font-serif text-xl font-medium tracking-tight text-white group-hover:text-primary transition-colors">{event}</h3>
+                  <h3 className="font-serif text-xl font-medium tracking-tight text-foreground group-hover:text-primary transition-colors">{event}</h3>
                   {eventDetails?.category && (
-                    <span className="inline-block mt-2 px-2.5 py-1 rounded-md bg-white/5 text-[10px] uppercase font-semibold text-zinc-500 tracking-wider">
+                    <span className="inline-block mt-2 px-2.5 py-1 rounded-md bg-muted text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
                       {eventDetails.category}
                     </span>
                   )}
                 </div>
                 {isSelected && progress?.isComplete && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <CheckCircle className="w-6 h-6 text-green-400 drop-shadow-md flex-shrink-0" />
+                    <CheckCircle className="w-6 h-6 text-green-500 drop-shadow-md flex-shrink-0" />
                   </motion.div>
                 )}
                 {isSelected && progress?.status === "in-progress" && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <AlertCircle className="w-6 h-6 text-orange-400 drop-shadow-md flex-shrink-0" />
+                    <AlertCircle className="w-6 h-6 text-orange-500 drop-shadow-md flex-shrink-0" />
                   </motion.div>
                 )}
               </div>
 
               {eventDetails?.description && !isSelected && (
-                <p className="text-sm text-zinc-500 mt-2 mb-4 line-clamp-2 relative z-10 leading-relaxed">
+                <p className="text-sm text-muted-foreground mt-2 mb-4 line-clamp-2 relative z-10 leading-relaxed">
                   {eventDetails.description}
                 </p>
               )}
@@ -400,21 +400,21 @@ export default function Home() {
                 {isSelected && progress ? (
                   <div className="space-y-2.5">
                     <div className="flex justify-between text-[11px] font-semibold tabular-nums uppercase tracking-wider">
-                      <span className={progress.isComplete ? "text-green-400" : "text-orange-400"}>
+                      <span className={progress.isComplete ? "text-green-500" : "text-orange-500"}>
                         {progress.isComplete ? "Registered" : "In Progress"}
                       </span>
-                      <span className="text-zinc-500">{progress.validCount} / {progress.targetSize}</span>
+                      <span className="text-muted-foreground">{progress.validCount} / {progress.targetSize}</span>
                     </div>
-                    <div className="h-1 w-full bg-black/50 rounded-full overflow-hidden">
+                    <div className="h-1 w-full bg-secondary rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(progress.validCount / progress.targetSize) * 100}%` }}
-                        className={cn("h-full rounded-full", progress.isComplete ? "bg-green-400" : "bg-orange-400")}
+                        className={cn("h-full rounded-full", progress.isComplete ? "bg-green-500" : "bg-orange-500")}
                       />
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                     <Users className="w-4 h-4 opacity-70" />
                     <span>{eventDetails?.teamSize ? `${eventDetails.teamSize} Participants` : "Flexible Team Size"}</span>
                   </div>
@@ -428,7 +428,7 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900/40 via-[#0a0a0a] to-black text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
+    <main className="min-h-screen pb-48 px-4 sm:px-6 lg:px-8 py-16 bg-background text-foreground relative selection:bg-primary/30 font-sans overflow-x-hidden">
       
       <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none mix-blend-screen blur-3xl opacity-60" />
       
@@ -438,12 +438,12 @@ export default function Home() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-sm font-medium"
+            className="fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-popover/90 backdrop-blur-xl border border-border rounded-2xl shadow-custom text-sm font-medium"
           >
             {saveState === "saving" ? (
-              <><Cloud className="w-4 h-4 animate-pulse text-zinc-500" /> <span className="text-zinc-400">Saving securely...</span></>
+              <><Cloud className="w-4 h-4 animate-pulse text-muted-foreground" /> <span className="text-muted-foreground">Saving securely...</span></>
             ) : saveState === "saved" ? (
-              <><Check className="w-4 h-4 text-green-400" /> <span className="text-zinc-400">Changes saved</span></>
+              <><Check className="w-4 h-4 text-green-500" /> <span className="text-muted-foreground">Changes saved</span></>
             ) : null}
           </motion.div>
         )}
@@ -461,15 +461,15 @@ export default function Home() {
               <img 
                 src="https://framerusercontent.com/images/GuPYr7ZLGnklkwJ5MitUN7nvgcA.png" 
                 alt="Event Logo" 
-                className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-3xl mx-auto shadow-2xl group-hover:scale-105 transition-all duration-500 ring-1 ring-white/5 bg-zinc-900/50 p-1"
+                className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-3xl mx-auto shadow-custom group-hover:scale-105 transition-all duration-500 ring-1 ring-border bg-card p-1"
               />
             </Link>
           </motion.div>
           <div className="space-y-5">
-            <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-500 pb-2">
+            <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tight text-foreground pb-2">
               Registration
             </h1>
-            <p className="text-zinc-400 text-lg max-w-xl mx-auto font-light leading-relaxed">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light leading-relaxed">
               Secure your spot for the upcoming events. Let&apos;s start with your school details.
             </p>
           </div>
@@ -478,31 +478,31 @@ export default function Home() {
         <form onSubmit={handleSubmit} className="space-y-20">
           
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-[2.5rem] opacity-50 group-focus-within:opacity-100 transition-opacity duration-700" />
-            <div className="relative bg-zinc-950/60 backdrop-blur-2xl p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border border-white/5">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-[2.5rem] opacity-50 group-focus-within:opacity-100 transition-opacity duration-700" />
+            <div className="relative bg-card/60 backdrop-blur-2xl p-8 sm:p-12 rounded-[2.5rem] shadow-custom border border-border">
               <div className="flex items-center mb-10 gap-3">
                 <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-serif font-medium text-white">
+                <h2 className="text-2xl font-serif font-medium text-foreground">
                   School Details
                 </h2>
               </div>
               
               <div className="grid gap-8 sm:grid-cols-2">
                 <div className="space-y-3 group/input">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Name</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Name</label>
                   <input
                     type="text" required value={schoolName} onChange={(e) => setSchoolName(e.target.value)}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/5 focus:outline-none focus:border-primary/50 focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700"
+                    className="w-full px-5 py-4 rounded-2xl bg-input border border-border focus:outline-none focus:border-primary/50 focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground"
                     placeholder="e.g. Springfield High"
                   />
                 </div>
                 <div className="space-y-3 group/input">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Email</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 group-focus-within/input:text-primary transition-colors">School Email</label>
                   <input
                     type="email" required value={schoolEmail} onChange={(e) => setSchoolEmail(e.target.value)}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/5 focus:outline-none focus:border-primary/50 focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700"
+                    className="w-full px-5 py-4 rounded-2xl bg-input border border-border focus:outline-none focus:border-primary/50 focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground"
                     placeholder="school@example.com"
                   />
                 </div>
@@ -513,10 +513,10 @@ export default function Home() {
           <div className="space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pl-2">
               <div className="space-y-2">
-                <h2 className="text-3xl font-serif font-medium text-white tracking-tight">
+                <h2 className="text-3xl font-serif font-medium text-foreground tracking-tight">
                   Choose Events
                 </h2>
-                <p className="text-base text-zinc-500 font-light">Select and build your teams for the events below.</p>
+                <p className="text-base text-muted-foreground font-light">Select and build your teams for the events below.</p>
               </div>
             </div>
             
@@ -543,20 +543,20 @@ export default function Home() {
             {teams.length > 0 && (
               <motion.div 
                 initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-                className="fixed bottom-8 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-32px)] sm:max-w-3xl bg-zinc-950/90 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] rounded-full p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between z-40 gap-4"
+                className="fixed bottom-8 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-32px)] sm:max-w-3xl bg-popover/90 backdrop-blur-2xl border border-border shadow-custom rounded-full p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between z-40 gap-4"
               >
                 <div className="flex-1 flex flex-col justify-center px-6">
-                  <div className="flex items-center gap-3 text-sm font-medium text-white">
+                  <div className="flex items-center gap-3 text-sm font-medium text-foreground">
                     <span>{teams.length} {teams.length === 1 ? 'Event' : 'Events'}</span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                    <span className="text-zinc-400">{totalParticipants} {totalParticipants === 1 ? 'Student' : 'Students'}</span>
+                    <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                    <span className="text-muted-foreground">{totalParticipants} {totalParticipants === 1 ? 'Student' : 'Students'}</span>
                   </div>
                   {!isFormValid ? (
-                    <p className="text-orange-400/80 text-xs mt-1.5 flex items-center gap-1.5">
+                    <p className="text-destructive text-xs mt-1.5 flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5" /> {formError}
                     </p>
                   ) : (
-                    <p className="text-green-400/80 text-xs mt-1.5 flex items-center gap-1.5">
+                    <p className="text-green-500 text-xs mt-1.5 flex items-center gap-1.5">
                       <CheckCircle className="w-3.5 h-3.5" /> All requirements met
                     </p>
                   )}
@@ -568,8 +568,8 @@ export default function Home() {
                   className={cn(
                     "w-full sm:w-auto px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-3 transition-all duration-300",
                     isFormValid && !isSubmitting
-                      ? "bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                      : "bg-white/5 text-zinc-600 cursor-not-allowed border border-white/5"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] shadow-sm"
+                      : "bg-muted text-muted-foreground cursor-not-allowed border border-border"
                   )}
                 >
                   {isSubmitting ? (
@@ -596,21 +596,21 @@ export default function Home() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 30, stiffness: 350 }}
-                className="bg-[#0f0f0f] border border-white/10 rounded-[2rem] shadow-2xl max-w-3xl w-full h-[90vh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col relative"
+                className="bg-card border border-border rounded-[2rem] shadow-custom max-w-3xl w-full h-[90vh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col relative"
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleKeyDown}
               >
                 {/* Modal Header */}
-                <div className="px-8 py-6 border-b border-white/5 bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+                <div className="px-8 py-6 border-b border-border bg-muted/30 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
                   <div className="w-full space-y-3">
-                    <h2 className="text-2xl font-serif font-medium text-white">{currentTeam.event}</h2>
+                    <h2 className="text-2xl font-serif font-medium text-foreground">{currentTeam.event}</h2>
                     <div className="flex items-center gap-4 text-sm font-medium">
-                       <span className={getTeamProgress(currentTeam).isComplete ? "text-green-400" : "text-zinc-400"}>
+                       <span className={getTeamProgress(currentTeam).isComplete ? "text-green-500" : "text-muted-foreground"}>
                          {getTeamProgress(currentTeam).validCount} of {getTeamProgress(currentTeam).targetSize} Ready
                        </span>
-                       <div className="h-1 flex-1 max-w-[120px] bg-white/5 rounded-full overflow-hidden">
+                       <div className="h-1 flex-1 max-w-[120px] bg-secondary rounded-full overflow-hidden">
                          <motion.div 
-                           className={cn("h-full rounded-full", getTeamProgress(currentTeam).isComplete ? "bg-green-400" : "bg-primary")}
+                           className={cn("h-full rounded-full", getTeamProgress(currentTeam).isComplete ? "bg-green-500" : "bg-primary")}
                            animate={{ width: `${(getTeamProgress(currentTeam).validCount / getTeamProgress(currentTeam).targetSize) * 100}%` }}
                          />
                        </div>
@@ -618,22 +618,22 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2 self-end sm:self-auto">
                     {confirmDeleteId === currentTeam.id ? (
-                      <div className="flex items-center gap-3 bg-red-500/10 px-4 py-2.5 rounded-2xl border border-red-500/20">
-                        <span className="text-xs font-semibold text-red-400">Delete team?</span>
-                        <button onClick={() => removeTeam(currentTeam.id)} className="text-white hover:text-red-300 font-bold text-xs px-2">Yes</button>
-                        <button onClick={() => setConfirmDeleteId(null)} className="text-zinc-500 hover:text-white text-xs px-2">No</button>
+                      <div className="flex items-center gap-3 bg-destructive/10 px-4 py-2.5 rounded-2xl border border-destructive/20">
+                        <span className="text-xs font-semibold text-destructive">Delete team?</span>
+                        <button onClick={() => removeTeam(currentTeam.id)} className="text-foreground hover:text-destructive font-bold text-xs px-2">Yes</button>
+                        <button onClick={() => setConfirmDeleteId(null)} className="text-muted-foreground hover:text-foreground text-xs px-2">No</button>
                       </div>
                     ) : (
                       <button 
                         onClick={() => setConfirmDeleteId(currentTeam.id)} 
-                        className="p-3 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                        className="p-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
                     )}
                     <button 
                       onClick={() => setShowTeamModal(false)} 
-                      className="p-3 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-xl transition-all"
+                      className="p-3 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-xl transition-all"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -642,7 +642,7 @@ export default function Home() {
 
                 {/* Stepper */}
                 {currentTeam.members.length > 1 && (
-                  <div className="flex items-center gap-3 overflow-x-auto px-8 py-5 border-b border-white/5 bg-zinc-950/50 scrollbar-hide">
+                  <div className="flex items-center gap-3 overflow-x-auto px-8 py-5 border-b border-border bg-muted/50 scrollbar-hide">
                     {currentTeam.members.map((_, idx) => {
                       const m = currentTeam.members[idx];
                       const evDetail = getEventDetails(currentTeam.event);
@@ -654,11 +654,11 @@ export default function Home() {
                           className={cn(
                             "flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap gap-3 border",
                             activeMemberIndex === idx 
-                              ? "bg-white text-black border-transparent" 
-                              : "bg-transparent text-zinc-500 border-white/5 hover:bg-white/5 hover:text-zinc-300"
+                              ? "bg-primary text-primary-foreground border-transparent"
+                              : "bg-transparent text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
                           )}
                         >
-                          {isComplete ? <Check className={cn("w-4 h-4", activeMemberIndex === idx ? "text-black" : "text-green-500")} /> : <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" />}
+                          {isComplete ? <Check className={cn("w-4 h-4", activeMemberIndex === idx ? "text-primary-foreground" : "text-green-500")} /> : <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" />}
                           Player {idx + 1}
                         </button>
                       )
@@ -667,7 +667,7 @@ export default function Home() {
                 )}
 
                 {/* Modal Body */}
-                <div className="p-8 overflow-y-auto flex-1 bg-zinc-950/20 relative">
+                <div className="p-8 overflow-y-auto flex-1 bg-background relative">
                   <AnimatePresence mode="wait">
                     {currentTeam.members[activeMemberIndex] && (() => {
                       const member = currentTeam.members[activeMemberIndex];
@@ -684,22 +684,22 @@ export default function Home() {
                           className="space-y-8"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <h3 className="font-serif font-medium text-xl text-white">
+                            <h3 className="font-serif font-medium text-xl text-foreground">
                               Participant Details
                             </h3>
                             <div className="flex items-center gap-2">
                               {activeMemberIndex < currentTeam.members.length - 1 && (
-                                <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/5">
+                                <div className="flex items-center bg-secondary rounded-xl p-1 border border-border">
                                   <button
                                     type="button" onClick={() => duplicateToNext(activeMemberIndex, "class")}
-                                    className="text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-4 py-2.5 rounded-lg"
+                                    className="text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-background transition-colors px-4 py-2.5 rounded-lg"
                                   >
                                     Copy Class
                                   </button>
-                                  <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
+                                  <div className="w-[1px] h-4 bg-border mx-1"></div>
                                   <button
                                     type="button" onClick={() => duplicateToNext(activeMemberIndex, "all")}
-                                    className="text-xs font-medium flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors px-4 py-2.5 rounded-lg"
+                                    className="text-xs font-medium flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-background transition-colors px-4 py-2.5 rounded-lg"
                                   >
                                     <Copy className="w-3 h-3" /> All to Next
                                   </button>
@@ -708,7 +708,7 @@ export default function Home() {
                               {!eventDetails?.teamSize && currentTeam.members.length > 1 && (
                                 <button
                                   type="button" onClick={() => removeTeamMember(member.id)}
-                                  className="text-red-400 bg-red-400/10 hover:bg-red-400/20 p-3 rounded-xl transition-all ml-2"
+                                  className="text-destructive bg-destructive/10 hover:bg-destructive/20 p-3 rounded-xl transition-all ml-2"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -718,44 +718,44 @@ export default function Home() {
 
                           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
                             <div className="space-y-3 sm:col-span-2 group/input">
-                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
-                                Full Name {showErrors && !isNameValid && <span className="text-red-400">Required</span>}
+                              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 flex justify-between">
+                                Full Name {showErrors && !isNameValid && <span className="text-destructive">Required</span>}
                               </label>
                               <input
                                 type="text" value={member.name} onChange={(e) => updateTeamMember(member.id, "name", e.target.value)}
                                 autoComplete="name"
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
-                                  showErrors && !isNameValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
+                                  "w-full px-5 py-4 rounded-2xl bg-input border focus:outline-none focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground",
+                                  showErrors && !isNameValid ? "border-destructive" : "border-border focus:border-primary/50"
                                 )}
                                 placeholder="Student's full name"
                               />
                             </div>
                             <div className="space-y-3 group/input">
-                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
-                                Class & Section {showErrors && !isClassValid && <span className="text-red-400">Required</span>}
+                              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 flex justify-between">
+                                Class & Section {showErrors && !isClassValid && <span className="text-destructive">Required</span>}
                               </label>
                               <input
                                 type="text" value={member.class} onChange={(e) => updateTeamMember(member.id, "class", e.target.value)}
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
-                                  showErrors && !isClassValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
+                                  "w-full px-5 py-4 rounded-2xl bg-input border focus:outline-none focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground",
+                                  showErrors && !isClassValid ? "border-destructive" : "border-border focus:border-primary/50"
                                 )}
                                 placeholder="e.g. 10-A"
                               />
                             </div>
                             <div className="space-y-3 group/input">
-                              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest pl-1 flex justify-between">
+                              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pl-1 flex justify-between">
                                 Contact Number 
-                                {showErrors && (!isPhoneCheckValid && member.phone) && <span className="text-red-400">Invalid</span>}
-                                {showErrors && !member.phone && <span className="text-red-400">Required</span>}
+                                {showErrors && (!isPhoneCheckValid && member.phone) && <span className="text-destructive">Invalid</span>}
+                                {showErrors && !member.phone && <span className="text-destructive">Required</span>}
                               </label>
                               <input
                                 type="tel" inputMode="numeric" autoComplete="tel"
                                 value={member.phone} onChange={(e) => updateTeamMember(member.id, "phone", e.target.value)}
                                 className={cn(
-                                  "w-full px-5 py-4 rounded-2xl bg-black/40 border focus:outline-none focus:bg-black/60 transition-all text-base text-white placeholder:text-zinc-700",
-                                  showErrors && !isPhoneCheckValid ? "border-red-500/50" : "border-white/5 focus:border-white/20"
+                                  "w-full px-5 py-4 rounded-2xl bg-input border focus:outline-none focus:bg-background transition-all text-base text-foreground placeholder:text-muted-foreground",
+                                  showErrors && !isPhoneCheckValid ? "border-destructive" : "border-border focus:border-primary/50"
                                 )}
                                 placeholder="Mobile number"
                               />
@@ -763,15 +763,15 @@ export default function Home() {
                             
                             {eventDetails?.requiresInGameId && (
                               <div className="space-y-3 sm:col-span-2 group/input">
-                                <label className="text-xs font-semibold text-orange-400/80 uppercase tracking-widest pl-1 flex justify-between">
-                                  <span>In-Game ID <span className="text-orange-400/40 normal-case tracking-normal ml-1">({eventDetails.idFormat})</span></span>
-                                  {showErrors && !isIdValid && <span className="text-red-400">Required</span>}
+                                <label className="text-xs font-semibold text-orange-500 uppercase tracking-widest pl-1 flex justify-between">
+                                  <span>In-Game ID <span className="text-orange-500/70 normal-case tracking-normal ml-1">({eventDetails.idFormat})</span></span>
+                                  {showErrors && !isIdValid && <span className="text-destructive">Required</span>}
                                 </label>
                                 <input
                                   type="text" value={member.inGameId || ""} onChange={(e) => updateTeamMember(member.id, "inGameId", e.target.value)}
                                   className={cn(
-                                    "w-full px-5 py-4 rounded-2xl bg-orange-500/5 border focus:outline-none focus:bg-orange-500/10 transition-all text-base text-white placeholder:text-orange-500/30",
-                                    showErrors && !isIdValid ? "border-red-500/50" : "border-orange-500/20 focus:border-orange-500/50"
+                                    "w-full px-5 py-4 rounded-2xl bg-orange-500/5 border focus:outline-none focus:bg-orange-500/10 transition-all text-base text-foreground placeholder:text-orange-500/50",
+                                    showErrors && !isIdValid ? "border-destructive" : "border-orange-500/20 focus:border-orange-500/50"
                                   )}
                                   placeholder={`e.g., ${eventDetails.idFormat === "Riot ID (Username#Tagline)" ? "PlayerOne#1234" : "1234567890"}`}
                                 />
@@ -787,7 +787,7 @@ export default function Home() {
                     <motion.div layout className="flex justify-start pt-8">
                       <button
                         type="button" onClick={addTeamMember}
-                        className="px-6 py-4 bg-white/5 text-zinc-300 font-medium rounded-2xl hover:bg-white/10 hover:text-white transition-all flex items-center gap-3 border border-white/5 w-full justify-center sm:w-auto"
+                        className="px-6 py-4 bg-secondary text-muted-foreground font-medium rounded-2xl hover:bg-secondary/80 hover:text-foreground transition-all flex items-center gap-3 border border-border w-full justify-center sm:w-auto"
                       >
                         <PlusCircle className="w-5 h-5" /> Add Another Participant
                       </button>
@@ -796,23 +796,23 @@ export default function Home() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-8 py-6 border-t border-white/5 bg-zinc-900/30 flex flex-col sm:flex-row justify-between gap-4 relative z-10">
+                <div className="px-8 py-6 border-t border-border bg-muted/30 flex flex-col sm:flex-row justify-between gap-4 relative z-10">
                    <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3 order-2 sm:order-1">
                      {currentTeam.members.length > 1 && (
                        <>
                          <button
                            onClick={() => setActiveMemberIndex(Math.max(0, activeMemberIndex - 1))}
                            disabled={activeMemberIndex === 0}
-                           className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                           className="p-4 bg-secondary border border-border rounded-2xl hover:bg-secondary/80 disabled:opacity-50 disabled:hover:bg-secondary transition-all"
                          >
-                           <ChevronLeft className="w-5 h-5 text-white" />
+                           <ChevronLeft className="w-5 h-5 text-foreground" />
                          </button>
                          <button
                            onClick={() => setActiveMemberIndex(Math.min(currentTeam.members.length - 1, activeMemberIndex + 1))}
                            disabled={activeMemberIndex === currentTeam.members.length - 1}
-                           className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-all"
+                           className="p-4 bg-secondary border border-border rounded-2xl hover:bg-secondary/80 disabled:opacity-50 disabled:hover:bg-secondary transition-all"
                          >
-                           <ChevronRight className="w-5 h-5 text-white" />
+                           <ChevronRight className="w-5 h-5 text-foreground" />
                          </button>
                        </>
                      )}
@@ -821,7 +821,7 @@ export default function Home() {
                   <div className="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
                     <button
                       onClick={() => setShowTeamModal(false)}
-                      className="flex-1 sm:flex-none px-6 py-4 text-zinc-500 font-medium hover:text-zinc-300 rounded-2xl transition-all"
+                      className="flex-1 sm:flex-none px-6 py-4 text-muted-foreground font-medium hover:text-foreground rounded-2xl transition-all"
                     >
                       Cancel
                     </button>
@@ -830,8 +830,8 @@ export default function Home() {
                       className={cn(
                         "flex-1 sm:flex-none px-8 py-4 font-semibold rounded-2xl transition-all flex justify-center items-center gap-2",
                         getTeamProgress(currentTeam).isComplete 
-                          ? "bg-green-500 hover:bg-green-400 text-black shadow-[0_0_15px_rgba(34,197,94,0.2)]" 
-                          : "bg-white text-black hover:bg-zinc-200"
+                          ? "bg-green-500 hover:bg-green-600 text-white shadow-sm"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90"
                       )}
                     >
                       {getTeamProgress(currentTeam).isComplete ? (
