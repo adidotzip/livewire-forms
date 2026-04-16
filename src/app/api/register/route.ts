@@ -49,10 +49,9 @@ export async function POST(request: Request) {
         if (jsonMatch) {
           const result = JSON.parse(jsonMatch[0]);
           if (result.isSpam) {
-            return NextResponse.json(
-              { error: "Registration rejected due to invalid or suspicious data." },
-              { status: 400 }
-            );
+            body.isSpam = true;
+          } else {
+            body.isSpam = false;
           }
         }
       } catch (aiError) {
