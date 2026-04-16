@@ -62,7 +62,7 @@ Data:
 School Name: ${body.schoolName}
 School Email: ${body.schoolEmail}
 Students: ${JSON.stringify(
-          body.students.map((s: any) => ({
+          body.students.map((s: { name: string; class: string }) => ({
             name: s.name,
             class: s.class,
           }))
@@ -88,7 +88,7 @@ Students: ${JSON.stringify(
             } else {
               throw new Error("Invalid JSON shape");
             }
-          } catch (parseError) {
+          } catch {
             console.error("AI JSON parse failed:", clean);
           }
         } else {
