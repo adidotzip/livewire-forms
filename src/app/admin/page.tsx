@@ -18,6 +18,7 @@ type RegistrationRecord = {
   studentPhone: string;
   event: string;
   inGameId?: string;
+  isSpam?: boolean;
 };
 
 type MaterialsRecord = {
@@ -316,7 +317,14 @@ export default function AdminDashboard() {
                           {new Date(record.timestamp).toLocaleString()}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-medium text-neutral-900">{record.schoolName}</div>
+                          <div className="font-medium text-neutral-900 flex items-center gap-2">
+                            {record.schoolName}
+                            {record.isSpam && (
+                              <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                                Spam
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-neutral-500">{record.schoolEmail}</div>
                         </td>
                         <td className="px-6 py-4 font-medium text-neutral-900 whitespace-nowrap">

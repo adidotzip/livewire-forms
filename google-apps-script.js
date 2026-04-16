@@ -20,10 +20,11 @@ function getSheet() {
       "Class",
       "Phone No.",
       "Event",
-      "In-Game ID"
+      "In-Game ID",
+      "Is Spam"
     ]);
     // Make headers bold
-    sheet.getRange(1, 1, 1, 8).setFontWeight("bold");
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold");
     sheet.setFrozenRows(1);
   }
   return sheet;
@@ -40,6 +41,8 @@ function doPost(e) {
     const schoolEmail = body.schoolEmail;
     const students = body.students;
 
+    const isSpam = body.isSpam === true;
+
     // Process each student
     const rows = students.map(student => [
       new Date().toISOString(),
@@ -49,7 +52,8 @@ function doPost(e) {
       student.class || "",
       student.phone,
       student.event,
-      student.inGameId || ""
+      student.inGameId || "",
+      isSpam
     ]);
 
     // Append all rows efficiently
@@ -93,7 +97,8 @@ function doGet(e) {
         studentClass: row[4],
         studentPhone: row[5],
         event: row[6],
-        inGameId: row[7] || null
+        inGameId: row[7] || null,
+        isSpam: row[8] === true || row[8] === "true" || row[8] === "TRUE"
       };
       jsonData.push(obj);
     }
