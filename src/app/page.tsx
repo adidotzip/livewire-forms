@@ -169,30 +169,6 @@ export default function Home() {
       return;
     }
 
-    // Check for duplicate phone numbers in the current team
-    const currentTeamPhones = new Set<string>();
-    for (const member of currentTeam.members) {
-      if (currentTeamPhones.has(member.phone)) {
-        setShowErrors(true);
-        toast.error(`Duplicate phone number in team: ${member.phone}. Phone numbers must be unique.`);
-        return;
-      }
-      currentTeamPhones.add(member.phone);
-    }
-
-    // Check for duplicate phone numbers across other teams
-    for (const team of teams) {
-      if (team.id !== currentTeam.id) {
-        for (const member of team.members) {
-          if (currentTeamPhones.has(member.phone)) {
-            setShowErrors(true);
-            toast.error(`Phone number ${member.phone} is already registered in event: ${team.event}.`);
-            return;
-          }
-        }
-      }
-    }
-
     setTeams(prev => {
       const existingIndex = prev.findIndex(t => t.event === currentTeam.event);
       if (existingIndex >= 0) {
@@ -299,20 +275,6 @@ export default function Home() {
     if (teams.length === 0) return "Select at least one event";
     const incompleteTeam = teams.find(t => !getTeamProgress(t).isComplete);
     if (incompleteTeam) return `Complete all participants for ${incompleteTeam.event}`;
-
-    // Check for duplicate phone numbers across all teams
-    const phoneNumbers = new Set<string>();
-    for (const team of teams) {
-      for (const member of team.members) {
-        if (member.phone) {
-          if (phoneNumbers.has(member.phone)) {
-            return `Duplicate phone number found: ${member.phone}`;
-          }
-          phoneNumbers.add(member.phone);
-        }
-      }
-    }
-
     return null;
   };
 
