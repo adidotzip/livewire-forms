@@ -5,8 +5,13 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate request body
-    if (!body.schoolName || !body.schoolEmail || !body.students || !Array.isArray(body.students)) {
+    // ✅ Validate request body
+    if (
+      !body?.schoolName ||
+      !body?.schoolEmail ||
+      !body?.students ||
+      !Array.isArray(body.students)
+    ) {
       return NextResponse.json(
         { error: "Invalid request payload" },
         { status: 400 }
@@ -16,55 +21,88 @@ export async function POST(request: Request) {
     const scriptUrl = process.env.NEXT_PUBLIC_SCRIPT_URL;
 
     if (!scriptUrl) {
-      console.error("NEXT_PUBLIC_SCRIPT_URL is not defined in environment variables");
+      console.error("NEXT_PUBLIC_SCRIPT_URL is missing");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
       );
     }
 
-    // AI Spam Detection
+    // Default value (important if AI fails)
+    body.isSpam = false;
+
+    // ✅ AI Spam Detection
     if (process.env.GEMINI_API_KEY) {
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const model = genAI.getGenerativeModel({
+          model: "gemini-1.5-flash",
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json", // 🔥 forces cleaner JSON
+          },
+        });
 
         const prompt = `
-          Analyze the following event registration data and determine if it is spam, test data, or junk.
-          Return a JSON object with a single boolean field "isSpam".
-          Return true if it looks like random keystrokes, obvious fake names (e.g. "test", "asdf", "John Doe"), or fake school names.
-          Return false if it looks like a legitimate registration for a high school/college event in India.
+Analyze the following event registration data.
 
-          Data:
-          School Name: ${body.schoolName}
-          School Email: ${body.schoolEmail}
-          Students: ${JSON.stringify(body.students.map((s: { name: string, class: string }) => ({ name: s.name, class: s.class })))}
-        `;
+Return ONLY a valid JSON object:
+{ "isSpam": true/false }
+
+Mark as spam if:
+- keyboard smash (asdfgh)
+- fake names (test, John Doe)
+- fake school names
+- obvious junk data
+
+Otherwise return false.
+
+Data:
+School Name: ${body.schoolName}
+School Email: ${body.schoolEmail}
+Students: ${JSON.stringify(
+          body.students.map((s: any) => ({
+            name: s.name,
+            class: s.class,
+          }))
+        )}
+`;
 
         const aiResponse = await model.generateContent(prompt);
-        const text = aiResponse.response.text();
 
-        // Try to parse the JSON response from the model
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const result = JSON.parse(jsonMatch[0]);
-          if (result.isSpam) {
-            body.isSpam = true;
-          } else {
-            body.isSpam = false;
+        const text = aiResponse?.response?.text();
+
+        if (text) {
+          // 🧹 Clean response
+          const clean = text
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+          try {
+            const parsed = JSON.parse(clean);
+
+            if (typeof parsed?.isSpam === "boolean") {
+              body.isSpam = parsed.isSpam;
+            } else {
+              throw new Error("Invalid JSON shape");
+            }
+          } catch (parseError) {
+            console.error("AI JSON parse failed:", clean);
           }
+        } else {
+          console.error("Empty AI response");
         }
       } catch (aiError) {
         console.error("AI Spam Detection error:", aiError);
-        // Continue processing if AI fails, rather than blocking legitimate registrations
+        // 💡 Don't block user if AI fails
       }
     }
 
-    // Forward the payload to the Google Apps Script endpoint
+    // ✅ Send to Apps Script
     const response = await fetch(scriptUrl, {
       method: "POST",
-      // Apps script sometimes handles content types differently depending on setup,
-      // but standard application/json with JSON.stringify works with doPost(e) getting postData.contents
       headers: {
         "Content-Type": "application/json",
       },
@@ -72,16 +110,22 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      throw new Error(`Apps Script responded with status: ${response.status}`);
+      const errText = await response.text();
+      console.error("Apps Script error:", errText);
+
+      return NextResponse.json(
+        { error: "Failed to save data" },
+        { status: 500 }
+      );
     }
 
-    // If possible, parse the JSON response from Apps Script
+    // ✅ Parse response safely
     let responseData;
+
     try {
       responseData = await response.json();
     } catch {
-      // Some Apps Script setups return plain text or HTML instead of JSON if not properly configured.
-      console.warn("Could not parse Apps Script response as JSON");
+      console.warn("Non-JSON response from Apps Script");
       responseData = { success: true };
     }
 
@@ -89,6 +133,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Error in /api/register:", error);
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
