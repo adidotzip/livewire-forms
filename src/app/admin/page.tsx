@@ -41,6 +41,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"registrations" | "materials">("registrations");
   const router = useRouter();
 
+  // FIX 1: Single, clean fetchData with normalization inline
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -55,13 +56,16 @@ export default function AdminDashboard() {
 
       const result = await response.json();
 
-      // Ensure the returned data is an array
+      // Normalize to ensure studentPhone is always a string
+      const normalize = (arr: RegistrationRecord[]) =>
+        arr.map((r) => ({ ...r, studentPhone: String(r.studentPhone ?? "") }));
+
       if (Array.isArray(result)) {
-        setData(result);
+        setData(normalize(result));
       } else if (result.data && Array.isArray(result.data)) {
-         setData(result.data);
+        setData(normalize(result.data));
       } else {
-         setData([]);
+        setData([]);
       }
     } catch (error) {
       toast.error("Error loading data");
@@ -85,13 +89,12 @@ export default function AdminDashboard() {
 
       const result = await response.json();
 
-      // Ensure the returned data is an array
       if (Array.isArray(result)) {
         setMaterialsData(result);
       } else if (result.data && Array.isArray(result.data)) {
-         setMaterialsData(result.data);
+        setMaterialsData(result.data);
       } else {
-         setMaterialsData([]);
+        setMaterialsData([]);
       }
     } catch (error) {
       toast.error("Error loading materials data");
@@ -121,22 +124,12 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleSort = (field: keyof RegistrationRecord) => {
-    if (sortField === field) {
-      setSortAsc(!sortAsc);
-    } else {
-      setSortField(field);
-      setSortAsc(true);
-    }
-  };
-
-  // Filter & Search Logic
+  // FIX 2: Define filteredData (was missing entirely)
   const filteredData = data.filter((item) => {
     const matchesSearch =
-      item.schoolName.toLowerCase().includes(search.toLowerCase()) ||
-      item.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      item.studentPhone.toLowerCase().includes(search.toLowerCase()) ||
-      item.event.toLowerCase().includes(search.toLowerCase());
+      (item.schoolName && item.schoolName.toLowerCase().includes(search.toLowerCase())) ||
+      (item.studentName && item.studentName.toLowerCase().includes(search.toLowerCase())) ||
+      (item.event && item.event.toLowerCase().includes(search.toLowerCase()));
 
     const matchesFilter = filterEvent === "All" || item.event === filterEvent;
 
@@ -153,6 +146,16 @@ export default function AdminDashboard() {
 
     return matchesSearch && matchesFilter;
   });
+
+  // FIX 3: Define handleSort (was missing entirely)
+  const handleSort = (field: keyof RegistrationRecord) => {
+    if (sortField === field) {
+      setSortAsc((prev) => !prev);
+    } else {
+      setSortField(field);
+      setSortAsc(true);
+    }
+  };
 
   // Sort Logic
   const sortedData = [...filteredData].sort((a, b) => {
@@ -266,9 +269,9 @@ export default function AdminDashboard() {
                       { key: "timestamp", label: "Date & Time" },
                       { key: "schoolName", label: "School" },
                       { key: "studentName", label: "Student" },
-                    { key: "studentClass", label: "Class" },
-                    { key: "studentSection", label: "Section" },
-                    { key: "studentPhone", label: "Phone No." },
+                      { key: "studentClass", label: "Class" },
+                      { key: "studentSection", label: "Section" },
+                      { key: "studentPhone", label: "Phone No." },
                       { key: "event", label: "Event" },
                       ...(filteredData.some(d => d.inGameId) ? [{ key: "inGameId", label: "In-Game ID" }] : []),
                     ].map(({ key, label }) => (
@@ -291,10 +294,9 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody className="divide-y divide-neutral-200">
                   {loading ? (
-                    // Loading skeletons
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={`skeleton-${i}`} className="animate-pulse bg-white">
-                      {Array.from({ length: filteredData.some(d => d.inGameId) ? 8 : 7 }).map((_, j) => (
+                        {Array.from({ length: filteredData.some(d => d.inGameId) ? 8 : 7 }).map((_, j) => (
                           <td key={`cell-${i}-${j}`} className="px-6 py-5">
                             <div className="h-4 bg-neutral-200 rounded-full w-3/4"></div>
                           </td>
@@ -371,7 +373,7 @@ export default function AdminDashboard() {
                 <p className="text-neutral-500 mt-1">Try adjusting your filters or search query.</p>
               </div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -397,7 +399,7 @@ export default function AdminDashboard() {
                           #{record.submissionId?.slice(0, 7) || 'N/A'}
                         </span>
                       </div>
-                      
+
                       <div className="mb-4 flex-grow">
                         <div className="flex items-start gap-3">
                           <Building2 className="w-5 h-5 text-neutral-400 mt-0.5 shrink-0" />
@@ -405,13 +407,13 @@ export default function AdminDashboard() {
                             {record.schoolName || "Unknown School"}
                           </h3>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 mt-3 text-sm text-neutral-500">
                           <Calendar className="w-4 h-4" />
                           <time dateTime={record.submittedAt}>
-                            {record.submittedAt ? new Date(record.submittedAt).toLocaleDateString(undefined, { 
-                              year: 'numeric', 
-                              month: 'short', 
+                            {record.submittedAt ? new Date(record.submittedAt).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
                               day: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit'
