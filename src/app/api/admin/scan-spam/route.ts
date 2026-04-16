@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // ✅ Prepare clean data
-    const dataToScan = records.map((r: any) => ({
+    const dataToScan = records.map((r: { studentPhone: string; studentName: string; schoolEmail: string; schoolName: string; }) => ({
       id: `${r.studentPhone}-${r.studentName}`, // safer unique ID
       name: r.studentName,
       email: r.schoolEmail,
@@ -47,42 +48,32 @@ Data: ${JSON.stringify(dataToScan)}
 `;
 
     // ✅ Call Gemini
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json", // 🔥 forces cleaner JSON
-          },
-        }),
-      }
-    );
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // ❌ Handle API failure
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error("Gemini API error:", errText);
-
+    let rawText = "";
+    try {
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: "application/json", // 🔥 forces cleaner JSON
+        },
+      });
+      rawText = result.response.text();
+    } catch (e) {
+      const error = e as Error;
+      console.error("Gemini API error:", error);
       return NextResponse.json(
-        { error: "Gemini API failed" },
+        { error: error.message || "Gemini API failed" },
         { status: 500 }
       );
     }
 
-    const aiResult = await geminiResponse.json();
-
-    // ❌ Safe extraction
-    const rawText =
-      aiResult?.candidates?.[0]?.content?.parts?.[0]?.text;
-
     if (!rawText) {
-      console.error("Invalid Gemini response:", aiResult);
-
+      console.error("Invalid Gemini response: empty text");
       return NextResponse.json(
-        { error: "Invalid AI response" },
+        { error: "Invalid AI response: empty text" },
         { status: 500 }
       );
     }
@@ -103,7 +94,7 @@ Data: ${JSON.stringify(dataToScan)}
       } else {
         throw new Error("Not an array");
       }
-    } catch (e) {
+    } catch {
       console.error("JSON parse failed:", cleanJsonString);
 
       return NextResponse.json(
@@ -113,7 +104,7 @@ Data: ${JSON.stringify(dataToScan)}
     }
 
     // ✅ Attach spam flag
-    const updatedRecords = records.map((record: any) => {
+    const updatedRecords = records.map((record: { studentPhone: string; studentName: string; [key: string]: unknown }) => {
       const uniqueId = `${record.studentPhone}-${record.studentName}`;
 
       return {
@@ -124,11 +115,12 @@ Data: ${JSON.stringify(dataToScan)}
 
     return NextResponse.json({ data: updatedRecords });
 
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error("AI Spam Scan Error:", error);
 
     return NextResponse.json(
-      { error: "Failed to process AI scan" },
+      { error: error.message || "Failed to process AI scan" },
       { status: 500 }
     );
   }

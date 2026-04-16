@@ -3,14 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { 
   LogOut, Search, RefreshCw, Filter, ShieldCheck, 
-  ChevronDown, ChevronUp, ExternalLink, Calendar, 
-  Building2, FolderOpen, Sparkles, Download, EyeOff, Eye
+  ChevronDown, ChevronUp, Sparkles, Download, EyeOff, Eye
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { EVENT_LIST } from "@/lib/events";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
 type RegistrationRecord = {
   timestamp: string;
@@ -131,14 +129,18 @@ export default function AdminDashboard() {
         body: JSON.stringify({ records: data }),
       });
       
-      if (!response.ok) throw new Error("Failed to scan spam");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to scan spam");
+      }
       
       const result = await response.json();
       setData(result.data); // Update with AI-flagged data
       toast.success("Spam scan complete!", { id: toastId });
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error;
       console.error(error);
-      toast.error("AI Scan failed. Check console.", { id: toastId });
+      toast.error(error.message || "AI Scan failed. Check console.", { id: toastId });
     } finally {
       setIsScanningSpam(false);
     }
