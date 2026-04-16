@@ -103,8 +103,7 @@ export default function Home() {
 
   const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isPhoneValid = (phone: string) => {
-    const digits = phone.replace(/\D/g, '');
-    return digits.length >= 10 && digits.length <= 10;
+    return /^[6-9]\d{9}$/.test(phone);
   };
   
   const getEventDetails = (eventName: string): EventDetail => EVENT_DETAILS[eventName as keyof typeof EVENT_DETAILS] || {};
@@ -168,6 +167,30 @@ export default function Home() {
       setShowErrors(true);
       toast.error(`Please complete all fields correctly for all ${progress.targetSize} participants.`);
       return;
+    }
+
+    // Check for duplicate phone numbers in the current team
+    const currentTeamPhones = new Set<string>();
+    for (const member of currentTeam.members) {
+      if (currentTeamPhones.has(member.phone)) {
+        setShowErrors(true);
+        toast.error(`Duplicate phone number in team: ${member.phone}. Phone numbers must be unique.`);
+        return;
+      }
+      currentTeamPhones.add(member.phone);
+    }
+
+    // Check for duplicate phone numbers across other teams
+    for (const team of teams) {
+      if (team.id !== currentTeam.id) {
+        for (const member of team.members) {
+          if (currentTeamPhones.has(member.phone)) {
+            setShowErrors(true);
+            toast.error(`Phone number ${member.phone} is already registered in event: ${team.event}.`);
+            return;
+          }
+        }
+      }
     }
 
     setTeams(prev => {
@@ -243,21 +266,19 @@ export default function Home() {
     }
   };
 
-  const duplicateToNext = (currentIndex: number, type: "class" | "all") => {
+  const duplicateToNext = (currentIndex: number) => {
     if (!currentTeam || currentIndex >= currentTeam.members.length - 1) return;
     const currentMember = currentTeam.members[currentIndex];
     setCurrentTeam(prev => ({
       ...prev!,
       members: prev!.members.map((member, idx) => {
         if (idx === currentIndex + 1) {
-          return type === "all" 
-            ? { ...member, class: currentMember.class, phone: currentMember.phone }
-            : { ...member, class: currentMember.class };
+          return { ...member, class: currentMember.class };
         }
         return member;
       }),
     }));
-    toast.success(type === "all" ? "Class & Phone copied" : "Class copied");
+    toast.success("Class copied");
     setActiveMemberIndex(currentIndex + 1);
   };
 
@@ -278,6 +299,20 @@ export default function Home() {
     if (teams.length === 0) return "Select at least one event";
     const incompleteTeam = teams.find(t => !getTeamProgress(t).isComplete);
     if (incompleteTeam) return `Complete all participants for ${incompleteTeam.event}`;
+
+    // Check for duplicate phone numbers across all teams
+    const phoneNumbers = new Set<string>();
+    for (const team of teams) {
+      for (const member of team.members) {
+        if (member.phone) {
+          if (phoneNumbers.has(member.phone)) {
+            return `Duplicate phone number found: ${member.phone}`;
+          }
+          phoneNumbers.add(member.phone);
+        }
+      }
+    }
+
     return null;
   };
 
@@ -314,6 +349,9 @@ export default function Home() {
 
       if (!response.ok) throw new Error("Failed to submit");
       toast.success("Registration successful!", { id: toastId });
+      localStorage.removeItem("schoolName");
+      localStorage.removeItem("schoolEmail");
+      localStorage.removeItem("teams");
       window.location.href = "https://thelivewire.club/";
 
     } catch (error) {
@@ -691,17 +729,10 @@ export default function Home() {
                               {activeMemberIndex < currentTeam.members.length - 1 && (
                                 <div className="flex items-center bg-secondary rounded-xl p-1 border border-border">
                                   <button
-                                    type="button" onClick={() => duplicateToNext(activeMemberIndex, "class")}
-                                    className="text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-background transition-colors px-4 py-2.5 rounded-lg"
-                                  >
-                                    Copy Class
-                                  </button>
-                                  <div className="w-[1px] h-4 bg-border mx-1"></div>
-                                  <button
-                                    type="button" onClick={() => duplicateToNext(activeMemberIndex, "all")}
+                                    type="button" onClick={() => duplicateToNext(activeMemberIndex)}
                                     className="text-xs font-medium flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-background transition-colors px-4 py-2.5 rounded-lg"
                                   >
-                                    <Copy className="w-3 h-3" /> All to Next
+                                    <Copy className="w-3 h-3" /> Copy Class
                                   </button>
                                 </div>
                               )}
