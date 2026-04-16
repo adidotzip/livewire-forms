@@ -104,7 +104,7 @@ export default function Home() {
   const isEmailValid = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isPhoneValid = (phone: string) => {
     const digits = phone.replace(/\D/g, '');
-    return digits.length >= 10 && digits.length <= 15;
+    return digits.length >= 10 && digits.length <= 10;
   };
   
   const getEventDetails = (eventName: string): EventDetail => EVENT_DETAILS[eventName as keyof typeof EVENT_DETAILS] || {};
