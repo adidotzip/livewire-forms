@@ -17,7 +17,7 @@ export const EVENT_LIST = [
 export const EVENT_DETAILS: Record<string, { teamSize: number | null; requiresInGameId: boolean; idFormat: string }> = {
   "Ascension — Valorant": { teamSize: 5, requiresInGameId: true, idFormat: "Riot ID (Username#Tagline)" },
   "Ascension — Rocket League": { teamSize: 4, requiresInGameId: true, idFormat: "Epic Games ID / Rocket ID" },
-  "Ascension — BGMI": { teamSize: 4, requiresInGameId: true, idFormat: "10-digit Character ID and IGN" },
+  "Ascension — BGMI": { teamSize: 4, requiresInGameId: true, idFormat: "Character ID" },
   "Dynamic Racing Showdown": { teamSize: 2, requiresInGameId: false, idFormat: "" },
   "Paradox Palette": { teamSize: 1, requiresInGameId: false, idFormat: "" },
   "Sandbox Mania": { teamSize: 1, requiresInGameId: false, idFormat: "" },
