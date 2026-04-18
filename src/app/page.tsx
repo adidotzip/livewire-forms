@@ -61,6 +61,8 @@ export default function Home() {
   const [showErrors, setShowErrors] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     setMounted(true);
@@ -89,6 +91,18 @@ export default function Home() {
       return () => clearTimeout(timeout);
     }
   }, [schoolName, schoolEmail, teams, mounted]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showSuccessModal && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (showSuccessModal && countdown === 0) {
+      window.location.href = "https://thelivewire.club/events";
+    }
+    return () => clearTimeout(timer);
+  }, [showSuccessModal, countdown]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -314,6 +328,8 @@ export default function Home() {
       localStorage.removeItem("teams");
       setTeams([]);
       setIsSubmitting(false);
+      setShowSuccessModal(true);
+      setCountdown(5);
 
     } catch (error) {
       console.error(error);
@@ -840,6 +856,58 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showSuccessModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="bg-card border border-border rounded-[2.5rem] shadow-custom max-w-md w-full p-10 text-center space-y-8 relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500/50 via-green-500 to-green-500/50" />
+
+                <div className="flex justify-center">
+                  <div className="p-5 bg-green-500/10 rounded-full border border-green-500/20 relative">
+                    <CheckCircle className="w-12 h-12 text-green-500" />
+                    <motion.div
+                      initial={{ scale: 1.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="absolute inset-0 bg-green-500/20 rounded-full -z-10 blur-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-serif font-semibold text-foreground">Registration Successful!</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Thank you for registering. Your details have been securely recorded.
+                  </p>
+                </div>
+
+                <div className="pt-4">
+                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-secondary rounded-2xl border border-border text-sm font-medium text-muted-foreground">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    Redirecting in <span className="text-foreground font-bold tabular-nums w-4">{countdown}</span> seconds...
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest font-semibold pt-4">
+                  Powered by The Livewire Club
+                </p>
               </motion.div>
             </motion.div>
           )}
