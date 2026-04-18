@@ -311,10 +311,9 @@ export default function Home() {
 
       if (!response.ok) throw new Error("Failed to submit");
       toast.success("Registration successful!", { id: toastId });
-      localStorage.removeItem("schoolName");
-      localStorage.removeItem("schoolEmail");
       localStorage.removeItem("teams");
-      window.location.href = "https://thelivewire.club/";
+      setTeams([]);
+      setIsSubmitting(false);
 
     } catch (error) {
       console.error(error);
@@ -450,6 +449,12 @@ export default function Home() {
       </AnimatePresence>
 
       <div className="max-w-5xl mx-auto space-y-20 relative z-10">
+        <div className="absolute top-0 right-0 p-4">
+            <Link href="/school" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                View School Data
+            </Link>
+        </div>
         
         <div className="text-center space-y-10 mt-8">
           <motion.div
