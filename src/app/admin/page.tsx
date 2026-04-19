@@ -227,6 +227,15 @@ export default function AdminDashboard() {
     return 0;
   });
 
+  // --- HELPER FUNCTION: Ensure links have http/https ---
+  const getValidUrl = (url: string) => {
+    if (!url) return "#";
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      return `https://${url}`;
+    }
+    return url;
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -490,7 +499,7 @@ export default function AdminDashboard() {
                             ID: {material.submissionId.substring(0, 12)}...
                           </div>
                           <a
-                            href={material.driveLink}
+                            href={getValidUrl(material.driveLink)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors whitespace-nowrap flex-shrink-0"
