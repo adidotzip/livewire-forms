@@ -182,26 +182,32 @@ export default function AdminDashboard() {
   const processedData = processDuplicates(data);
 
   const filteredData = processedData.filter((item) => {
+    const matchesFilter = filterEvent === "All" || item.event === filterEvent;
+    
+    if (!search.trim()) return matchesFilter;
+
     const searchLower = search.toLowerCase();
     const matchesSearch =
       (item.schoolName && item.schoolName.toLowerCase().includes(searchLower)) ||
       (item.studentName && item.studentName.toLowerCase().includes(searchLower)) ||
       (item.event && item.event.toLowerCase().includes(searchLower)) ||
-      // NEW FEATURE: Phone Search
       (item.studentPhone && item.studentPhone.includes(search));
 
-    const matchesFilter = filterEvent === "All" || item.event === filterEvent;
     return matchesSearch && matchesFilter;
   });
 
   const filteredMaterialsData = materialsData.filter((item) => {
+    const matchesFilter = filterEvent === "All" || item.event === filterEvent;
+    
+    // Safely return if search is empty to prevent undefined errors
+    if (!search.trim()) return matchesFilter;
+
     const searchLower = search.toLowerCase();
     const matchesSearch =
       (item.schoolName && item.schoolName.toLowerCase().includes(searchLower)) ||
       (item.event && item.event.toLowerCase().includes(searchLower)) ||
       (item.submissionId && item.submissionId.toLowerCase().includes(searchLower));
 
-    const matchesFilter = filterEvent === "All" || item.event === filterEvent;
     return matchesSearch && matchesFilter;
   });
 
@@ -346,7 +352,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Data Table */}
+        {/* Data Table - Registrations */}
         {activeTab === "registrations" && (
           <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -401,7 +407,7 @@ export default function AdminDashboard() {
                     sortedData.map((record, index) => (
                       <tr key={index} className={cn(
                         "hover:bg-neutral-50/50 transition-colors group",
-                        record.isSpam && "bg-red-50/30 hover:bg-red-50/50" // Highlight spam rows
+                        record.isSpam && "bg-red-50/30 hover:bg-red-50/50"
                       )}>
                         <td className="px-6 py-4 whitespace-nowrap text-neutral-500">
                           {new Date(record.timestamp).toLocaleString()}
@@ -448,15 +454,54 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Materials Tab (Unchanged visually, kept intact) */}
+        {/* Data Cards - Materials */}
         {activeTab === "materials" && (
           <div className="space-y-6">
-             {/* Note: I omitted repeating the large materials block to save space, but it remains functionally identical. */}
              {materialsLoading ? (
-               <div className="text-center text-neutral-500 py-10">Loading materials...</div>
+               <div className="flex flex-col items-center justify-center py-20 text-neutral-500">
+                 <RefreshCw className="w-8 h-8 animate-spin mb-4 text-neutral-400" />
+                 <p>Loading materials...</p>
+               </div>
              ) : (
-                /* Materials cards render logic from your original code here */
-                <p className="text-neutral-500">Materials view is active (Cards will render as normal).</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredMaterialsData.length === 0 ? (
+                    <div className="col-span-full py-16 text-center text-neutral-500 bg-white rounded-3xl border border-neutral-200">
+                      No materials found matching your search or filters.
+                    </div>
+                  ) : (
+                    filteredMaterialsData.map((material) => (
+                      <div key={material.submissionId} className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start gap-4">
+                          <div>
+                            <h3 className="font-semibold text-neutral-900 leading-tight">
+                              {material.schoolName}
+                            </h3>
+                            <span className="px-2.5 py-1 bg-neutral-100 text-neutral-700 rounded-lg text-xs font-medium mt-3 inline-block">
+                              {material.event}
+                            </span>
+                          </div>
+                          <div className="text-xs text-neutral-400 whitespace-nowrap">
+                            {new Date(material.submittedAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        <div className="mt-auto pt-4 border-t border-neutral-100 flex items-center justify-between gap-4">
+                          <div className="text-xs text-neutral-400 truncate" title={material.submissionId}>
+                            ID: {material.submissionId.substring(0, 12)}...
+                          </div>
+                          <a
+                            href={material.driveLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors whitespace-nowrap flex-shrink-0"
+                          >
+                            View Drive
+                          </a>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
              )}
           </div>
         )}
