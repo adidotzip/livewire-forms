@@ -63,9 +63,17 @@ export default function Home() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [isClosed, setIsClosed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
+    const REGISTRATION_END_DATE = new Date("April 20, 2026 23:59:00");
+
+    if (new Date() > REGISTRATION_END_DATE) {
+      setIsClosed(true);
+    }
+
     const savedSchoolName = localStorage.getItem("schoolName");
     const savedSchoolEmail = localStorage.getItem("schoolEmail");
     const savedTeams = localStorage.getItem("teams");
@@ -465,14 +473,22 @@ export default function Home() {
       </AnimatePresence>
 
       <div className="max-w-5xl mx-auto space-y-20 relative z-10">
-        <div className="absolute top-0 right-0 p-4">
+        <div className="absolute top-0 right-0 p-4 z-50">
             <Link href="/school" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 View School Data
             </Link>
         </div>
         
-        <div className="text-center space-y-10 mt-8">
+        {mounted && !isClosed && (
+          <div className="pt-16 sm:pt-12">
+            <div className="bg-orange-500/10 border border-orange-500/20 text-orange-600 rounded-2xl p-4 text-center font-medium shadow-sm backdrop-blur-sm max-w-3xl mx-auto">
+              Registrations will end on Monday at 11:59 PM, 20th April.
+            </div>
+          </div>
+        )}
+
+        <div className={cn("text-center space-y-10", mounted && !isClosed ? "mt-4" : "mt-8")}>
           <motion.div
             initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             className="relative inline-block"
@@ -496,9 +512,23 @@ export default function Home() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-20">
-          
-          <div className="relative group">
+        {isClosed ? (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+            className="bg-card border border-border rounded-[2.5rem] p-12 shadow-custom text-center space-y-6 max-w-3xl mx-auto"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/50 mb-4">
+              <AlertCircle className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h2 className="text-3xl font-serif font-semibold text-foreground">Registrations Closed</h2>
+            <p className="text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              We are no longer accepting new registrations for this event. Thank you for your interest!
+            </p>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-20">
+
+            <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-[2.5rem] opacity-50 group-focus-within:opacity-100 transition-opacity duration-700" />
             <div className="relative bg-card/60 backdrop-blur-2xl p-8 sm:p-12 rounded-[2.5rem] shadow-custom border border-border">
               <div className="flex items-center mb-10 gap-3">
@@ -603,7 +633,8 @@ export default function Home() {
               </motion.div>
             )}
           </AnimatePresence>
-        </form>
+          </form>
+        )}
 
         <AnimatePresence>
           {showTeamModal && currentTeam && (
